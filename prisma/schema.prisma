@@ -1,0 +1,383 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  student
+  admin
+
+  @@map("user_role")
+}
+
+enum TryoutMode {
+  relaxed
+  timed
+  full_simulation
+
+  @@map("tryout_mode")
+}
+
+enum ErrorCause {
+  didnt_know
+  out_of_time
+  panic
+  careless
+
+  @@map("error_cause")
+}
+
+enum TagSource {
+  auto
+  user
+
+  @@map("tag_source")
+}
+
+enum DayMode {
+  recovery
+  balanced
+  challenge
+
+  @@map("day_mode")
+}
+
+enum TaskType {
+  review
+  practice
+  tryout
+  rest
+  calm
+
+  @@map("task_type")
+}
+
+enum TaskStatus {
+  pending
+  done
+  swapped
+  skipped
+
+  @@map("task_status")
+}
+
+enum CalmTool {
+  breathing
+  grounding
+  reframing
+
+  @@map("calm_tool")
+}
+
+enum CalmTrigger {
+  manual
+  panic_button
+  plan
+
+  @@map("calm_trigger")
+}
+
+enum SupportAction {
+  shown
+  dismissed
+  opened
+  contacted
+
+  @@map("support_action")
+}
+
+enum ResourceType {
+  hotline
+  counselor
+  website
+
+  @@map("resource_type")
+}
+
+model User {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String          @db.VarChar(100)
+  email          String          @unique @db.VarChar(255)
+  emailVerified  Boolean         @default(false) @map("email_verified")
+  image          String?         @db.VarChar(500)
+  role           UserRole        @default(student)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  accounts       Account[]
+  sessions       Session[]
+  studentProfile StudentProfile?
+  tryoutSessions TryoutSession[]
+  topicStats     TopicStat[]
+  checkins       Checkin[]
+  dailyPlans     DailyPlan[]
+  calmSessions   CalmSession[]
+  supportEvents  SupportEvent[]
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @unique @map("user_id") @db.Uuid
+  targetUniversity String?   @map("target_university") @db.VarChar(150)
+  targetMajor      String?   @map("target_major") @db.VarChar(150)
+  examDate         DateTime? @map("exam_date") @db.Date
+  wellbeingConsent Boolean   @default(false) @map("wellbeing_consent")
+  consentedAt      DateTime? @map("consented_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model Subtest {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code           String          @unique @db.VarChar(30)
+  name           String          @db.VarChar(120)
+  defaultSeconds Int             @map("default_seconds")
+  topics         Topic[]
+  tryoutSessions TryoutSession[]
+
+  @@map("subtests")
+}
+
+model Topic {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subtestId  String      @map("subtest_id") @db.Uuid
+  name       String      @db.VarChar(150)
+  subtest    Subtest     @relation(fields: [subtestId], references: [id], onDelete: Cascade)
+  questions  Question[]
+  topicStats TopicStat[]
+  planTasks  PlanTask[]
+
+  @@unique([subtestId, name])
+  @@map("topics")
+}
+
+model Question {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topicId         String           @map("topic_id") @db.Uuid
+  difficulty      Int              @default(2) @db.SmallInt
+  stem            String           @db.Text
+  imageUrl        String?          @map("image_url") @db.VarChar(500)
+  explanation     String?          @db.Text
+  expectedSeconds Int              @default(90) @map("expected_seconds")
+  isPublished     Boolean          @default(false) @map("is_published")
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  topic           Topic            @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  options         QuestionOption[]
+  sessionAnswers  SessionAnswer[]
+
+  @@index([topicId, isPublished, difficulty])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId      String          @map("question_id") @db.Uuid
+  label           String          @db.Char(1)
+  body            String          @db.Text
+  isCorrect       Boolean         @default(false) @map("is_correct")
+  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedAnswers SessionAnswer[] @relation("SelectedOption")
+
+  @@unique([questionId, label])
+  @@map("question_options")
+}
+
+model TryoutSession {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String          @map("user_id") @db.Uuid
+  planTaskId       String?         @map("plan_task_id") @db.Uuid
+  subtestId        String?         @map("subtest_id") @db.Uuid
+  mode             TryoutMode
+  timeLimitSeconds Int?            @map("time_limit_seconds")
+  startedAt        DateTime        @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt       DateTime?       @map("finished_at") @db.Timestamptz(6)
+  score            Decimal?        @db.Decimal(5, 2)
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planTask         PlanTask?       @relation(fields: [planTaskId], references: [id], onDelete: SetNull)
+  subtest          Subtest?        @relation(fields: [subtestId], references: [id], onDelete: SetNull)
+  answers          SessionAnswer[]
+  calmSessions     CalmSession[]
+
+  @@index([userId, startedAt])
+  @@map("tryout_sessions")
+}
+
+model SessionAnswer {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId        String          @map("session_id") @db.Uuid
+  questionId       String          @map("question_id") @db.Uuid
+  selectedOptionId String?         @map("selected_option_id") @db.Uuid
+  isCorrect        Boolean         @default(false) @map("is_correct")
+  secondsSpent     Int             @default(0) @map("seconds_spent")
+  elapsedSeconds   Int             @default(0) @map("elapsed_seconds")
+  errorTag         ErrorCause?     @map("error_tag")
+  tagSource        TagSource?      @map("tag_source")
+  answeredAt       DateTime        @default(now()) @map("answered_at") @db.Timestamptz(6)
+  session          TryoutSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question         Question        @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  selectedOption   QuestionOption? @relation("SelectedOption", fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  @@unique([sessionId, questionId])
+  @@index([questionId])
+  @@map("session_answers")
+}
+
+model TopicStat {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  topicId         String    @map("topic_id") @db.Uuid
+  attempts        Int       @default(0)
+  correct         Int       @default(0)
+  lastPracticedAt DateTime? @map("last_practiced_at") @db.Timestamptz(6)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic           Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@map("topic_stats")
+}
+
+model Checkin {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  checkinDate DateTime @map("checkin_date") @db.Date
+  sleepHours  Decimal  @map("sleep_hours") @db.Decimal(3, 1)
+  energy      Int      @db.SmallInt
+  mood        Int      @db.SmallInt
+  stress      Int      @db.SmallInt
+  note        String?  @db.VarChar(280)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, checkinDate])
+  @@map("checkins")
+}
+
+model DailyPlan {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String     @map("user_id") @db.Uuid
+  planDate  DateTime   @map("plan_date") @db.Date
+  mode      DayMode
+  ruleKey   String     @map("rule_key") @db.VarChar(60)
+  reason    String     @db.Text
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     PlanTask[]
+
+  @@unique([userId, planDate])
+  @@map("daily_plans")
+}
+
+model PlanTask {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dailyPlanId    String          @map("daily_plan_id") @db.Uuid
+  topicId        String?         @map("topic_id") @db.Uuid
+  type           TaskType
+  title          String          @db.VarChar(160)
+  reason         String?         @db.VarChar(255)
+  estMinutes     Int             @default(15) @map("est_minutes")
+  status         TaskStatus      @default(pending)
+  sortOrder      Int             @default(0) @map("sort_order") @db.SmallInt
+  dailyPlan      DailyPlan       @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
+  topic          Topic?          @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  tryoutSessions TryoutSession[]
+
+  @@map("plan_tasks")
+}
+
+model CalmSession {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String         @map("user_id") @db.Uuid
+  tryoutSessionId String?        @map("tryout_session_id") @db.Uuid
+  tool            CalmTool
+  triggerSource   CalmTrigger    @map("trigger_source")
+  durationSeconds Int            @default(0) @map("duration_seconds")
+  note            String?        @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tryoutSession   TryoutSession? @relation(fields: [tryoutSessionId], references: [id], onDelete: SetNull)
+
+  @@map("calm_sessions")
+}
+
+model SupportResource {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String         @db.VarChar(150)
+  type           ResourceType
+  contact        String?        @db.VarChar(120)
+  url            String?        @db.VarChar(500)
+  isActive       Boolean        @default(true) @map("is_active")
+  lastVerifiedAt DateTime?      @map("last_verified_at") @db.Date
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  events         SupportEvent[]
+
+  @@map("support_resources")
+}
+
+model SupportEvent {
+  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
+  resourceId String?          @map("resource_id") @db.Uuid
+  ruleKey    String           @map("rule_key") @db.VarChar(60)
+  action     SupportAction
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource   SupportResource? @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+
+  @@map("support_events")
+}
+
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  token     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId             String    @map("account_id") @db.VarChar(255)
+  providerId            String    @map("provider_id") @db.VarChar(255)
+  userId                String    @map("user_id") @db.Uuid
+  accessToken           String?   @map("access_token") @db.Text
+  refreshToken          String?   @map("refresh_token") @db.Text
+  idToken               String?   @map("id_token") @db.Text
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz(6)
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(6)
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String   @db.VarChar(255)
+  value      String   @db.Text
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([identifier])
+  @@map("verifications")
+}

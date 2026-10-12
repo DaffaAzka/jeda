@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { siteCopy } from "@/lib/copy/id";
+import type { UserRole } from "@/lib/user-role";
 
 function NavigationIcon({ icon }: { icon: string }) {
   const iconPaths: Record<string, string> = {
@@ -10,6 +14,8 @@ function NavigationIcon({ icon }: { icon: string }) {
     timer: "M9 2h6m-3 4v2m7.07.93 1.41-1.41M12 10v4l3 2m5-2a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z",
     chart: "M4 20V10h4v10zm6 0V4h4v16zm6 0v-7h4v7z",
     calm: "M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z",
+    grid: "M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z",
+    list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
   };
 
   return (
@@ -28,26 +34,52 @@ function NavigationIcon({ icon }: { icon: string }) {
   );
 }
 
-function DashboardNavigation({ mobile = false }: { mobile?: boolean }) {
-  const navigation = siteCopy.dashboard.navigation;
+function DashboardNavigation({
+  role,
+  mobile = false,
+}: {
+  role: UserRole;
+  mobile?: boolean;
+}) {
+  const pathname = usePathname();
+  const navigation = siteCopy.dashboard.roles[role].navigation;
 
   return (
-    <ul className={mobile ? "grid grid-cols-5" : "flex flex-col gap-2"}>
+    <ul
+      className={mobile ? "grid auto-cols-fr grid-flow-col" : "flex flex-col gap-2"}
+    >
       {navigation.map((item) => (
         <li className={mobile ? "min-w-0" : ""} key={item.label}>
           {item.available ? (
-            <Link
-              aria-current="page"
-              className={
-                mobile
-                  ? "flex min-h-16 flex-col items-center justify-center gap-1 border-t-4 border-moodi-sky bg-muted px-1 text-center text-xs font-semibold text-foreground"
-                  : "flex min-h-12 items-center gap-3 border-2 border-border bg-moodi-sky px-3 font-semibold text-ink shadow-[2px_2px_0_var(--border)]"
-              }
-              href="/dashboard"
-            >
-              <NavigationIcon icon={item.icon} />
-              <span>{item.label}</span>
-            </Link>
+            (() => {
+              const href = ("href" in item ? item.href : undefined) ?? "/dashboard";
+              // Exact match for the question-bank overview to avoid lighting up when
+              // visiting /subtests, /topics, or /questions.
+              const isExactRoute = href === "/dashboard/question-bank";
+              const isCurrent = isExactRoute
+                ? pathname === href
+                : pathname === href ||
+                  (href !== "/dashboard" && pathname.startsWith(`${href}/`));
+
+              return (
+                <Link
+                  aria-current={isCurrent ? "page" : undefined}
+                  className={
+                    isCurrent
+                      ? mobile
+                        ? "flex min-h-16 flex-col items-center justify-center gap-1 border-t-4 border-moodi-sky bg-muted px-1 text-center text-xs font-semibold text-foreground"
+                        : "flex min-h-12 items-center gap-3 border-2 border-border bg-moodi-sky px-3 font-semibold text-ink shadow-[2px_2px_0_var(--border)]"
+                      : mobile
+                        ? "flex min-h-16 flex-col items-center justify-center gap-1 border-t-4 border-transparent px-1 text-center text-xs font-semibold text-muted-foreground hover:bg-muted"
+                        : "flex min-h-12 items-center gap-3 border-2 border-border px-3 font-semibold hover:bg-muted"
+                  }
+                  href={href}
+                >
+                  <NavigationIcon icon={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })()
           ) : (
             <div
               aria-disabled="true"
@@ -75,7 +107,9 @@ function DashboardNavigation({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
-export function DashboardSidebar() {
+export function Sidebar({ role }: { role: UserRole }) {
+  const roleCopy = siteCopy.dashboard.roles[role];
+
   return (
     <>
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r-2 border-border bg-card px-5 py-6 lg:flex">
@@ -85,13 +119,11 @@ export function DashboardSidebar() {
         >
           {siteCopy.brand}
         </Link>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {siteCopy.dashboard.dashboardLabel}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{roleCopy.label}</p>
 
         <div className="mt-9">
           <nav aria-label={siteCopy.dashboard.navigationLabel}>
-            <DashboardNavigation />
+            <DashboardNavigation role={role} />
           </nav>
         </div>
 
@@ -105,7 +137,7 @@ export function DashboardSidebar() {
         aria-label={siteCopy.dashboard.navigationLabel}
         className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-border bg-card pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
-        <DashboardNavigation mobile />
+        <DashboardNavigation mobile role={role} />
       </nav>
     </>
   );

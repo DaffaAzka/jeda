@@ -7,7 +7,7 @@ export const metadata = {
   title: `${siteCopy.auth.loginButton} | ${siteCopy.brand}`,
 };
 
-export default async function LoginPage() {
+export default async function LoginRoutePage() {
   const session = await getAuthSession();
 
   if (session) {

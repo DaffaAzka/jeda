@@ -22,6 +22,10 @@ const pixelifySans = Pixelify_Sans({
 export const metadata: Metadata = {
   title: siteCopy.metadata.title,
   description: siteCopy.metadata.description,
+  icons: {
+    icon: "/mow/mow.ico",
+    shortcut: "/mow/mow.ico",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

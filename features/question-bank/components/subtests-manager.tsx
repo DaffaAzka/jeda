@@ -2,19 +2,12 @@
 
 import { deleteSubtest, saveSubtest } from "@/features/question-bank/actions";
 import { siteCopy } from "@/lib/copy/id";
+import type { SubtestListItem } from "@/features/question-bank/queries";
 import { CrudModal } from "./crud-modal";
 import { DeleteButton } from "./delete-button";
 import { MutationForm } from "./mutation-form";
 
 const copy = siteCopy.questionBank;
-
-type SubtestRow = {
-  id: string;
-  code: string;
-  name: string;
-  defaultSeconds: number;
-  _count: { topics: number };
-};
 
 function Field({
   label,
@@ -52,7 +45,7 @@ function SubtestForm({
   subtest,
   onClose,
 }: {
-  subtest?: SubtestRow;
+  subtest?: SubtestListItem;
   onClose: () => void;
 }) {
   return (
@@ -87,7 +80,7 @@ function SubtestForm({
   );
 }
 
-export function SubtestsManager({ subtests }: { subtests: SubtestRow[] }) {
+export function SubtestsManager({ subtests }: { subtests: SubtestListItem[] }) {
   return (
     <div>
       {/* Table toolbar */}

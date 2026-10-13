@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { ActionState } from "@/features/question-bank/actions";
+import type { ActionState } from "@/features/question-bank/types";
 import { siteCopy } from "@/lib/copy/id";
 
 const copy = siteCopy.questionBank;

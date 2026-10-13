@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
@@ -8,7 +9,19 @@ import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
 import { getUserRole } from "@/lib/user-role";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <AuthenticatedDashboardLayout>{children}</AuthenticatedDashboardLayout>
+    </Suspense>
+  );
+}
+
+async function AuthenticatedDashboardLayout({
   children,
 }: {
   children: ReactNode;

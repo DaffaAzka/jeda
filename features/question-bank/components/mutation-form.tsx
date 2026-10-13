@@ -8,7 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import { useFormStatus } from "react-dom";
-import type { ActionState } from "@/features/question-bank/actions";
+import type { ActionState } from "@/features/question-bank/types";
 import { siteCopy } from "@/lib/copy/id";
 
 function SubmitButton({
@@ -58,7 +58,6 @@ export function MutationForm({
   });
 
   // Notify parent (e.g. a modal) when the action succeeds.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (state.success) onSuccess?.();
   // Only re-run when the success value changes, not when onSuccess ref changes.

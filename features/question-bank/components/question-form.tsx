@@ -4,41 +4,20 @@ import Link from "next/link";
 import { useActionState, useId, useRef, useState } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useFormStatus } from "react-dom";
-import { saveQuestion, type ActionState } from "@/features/question-bank/actions";
+import { saveQuestion } from "@/features/question-bank/actions";
+import type {
+  QuestionEditorData,
+  QuestionTopicChoice,
+} from "@/features/question-bank/queries";
 import { RichTextEditor } from "@/features/question-bank/components/rich-text-editor";
+import type { ActionState } from "@/features/question-bank/types";
 import { siteCopy } from "@/lib/copy/id";
-
-type TopicChoice = {
-  id: string;
-  name: string;
-  subtestName: string;
-};
-
-type ExistingOption = {
-  id: string;
-  body: string;
-  label: string;
-  isCorrect: boolean;
-};
-
-export type ExistingQuestion = {
-  id: string;
-  topicId: string;
-  difficulty: number;
-  stem: string;
-  imageUrl: string | null;
-  explanation: string | null;
-  expectedSeconds: number;
-  isPublished: boolean;
-  options: ExistingOption[];
-};
 
 type OptionDraft = {
   key: string;
-  id?: string;
   content: JSONContent;
-  isCorrect: boolean;
-};
+} & Partial<Pick<QuestionEditorData["options"][number], "id">> &
+  Pick<QuestionEditorData["options"][number], "isCorrect">;
 
 const copy = siteCopy.questionBank;
 const blankDocument: JSONContent = {
@@ -94,8 +73,8 @@ export function QuestionForm({
   topics,
   question,
 }: {
-  topics: TopicChoice[];
-  question?: ExistingQuestion;
+  topics: QuestionTopicChoice[];
+  question?: QuestionEditorData;
 }) {
   const [state, formAction] = useActionState(saveQuestion, {
     error: "",

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SubtestsManager } from "@/features/question-bank/components/subtests-manager";
+import { getSubtests } from "@/features/question-bank/queries";
 import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
-import { prisma } from "@/lib/prisma";
 import { getUserRole } from "@/lib/user-role";
 
 const copy = siteCopy.questionBank;
@@ -17,16 +17,7 @@ export default async function SubtestsPage() {
   if (!session) redirect("/login");
   if (getUserRole(session.user.role) !== "admin") redirect("/dashboard");
 
-  const subtests = await prisma.subtest.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      defaultSeconds: true,
-      _count: { select: { topics: true } },
-    },
-  });
+  const subtests = await getSubtests();
 
   return (
     <main className="min-w-0 flex-1 px-4 pb-24 py-8 sm:px-6 lg:px-10 lg:pb-8">

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
 import { getAuthSession } from "@/lib/auth-session";
@@ -7,7 +8,15 @@ export const metadata = {
   title: `${siteCopy.auth.loginButton} | ${siteCopy.brand}`,
 };
 
-export default async function LoginRoutePage() {
+export default function LoginRoutePage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+async function LoginContent() {
   const session = await getAuthSession();
 
   if (session) {

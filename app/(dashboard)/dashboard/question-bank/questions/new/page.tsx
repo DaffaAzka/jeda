@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { QuestionForm } from "@/features/question-bank/components/question-form";
+import { getQuestionTopicChoices } from "@/features/question-bank/queries";
 import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
-import { prisma } from "@/lib/prisma";
 import { getUserRole } from "@/lib/user-role";
 
 export const metadata = {
@@ -15,19 +15,7 @@ export default async function NewQuestionPage() {
   if (!session) redirect("/login");
   if (getUserRole(session.user.role) !== "admin") redirect("/dashboard");
 
-  const topics = await prisma.topic.findMany({
-    orderBy: [{ subtest: { name: "asc" } }, { name: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      subtest: { select: { name: true } },
-    },
-  });
-  const topicChoices = topics.map((topic) => ({
-    id: topic.id,
-    name: topic.name,
-    subtestName: topic.subtest.name,
-  }));
+  const topicChoices = await getQuestionTopicChoices();
 
   return (
     <main className="min-w-0 flex-1 px-4 pb-24 py-8 sm:px-6 lg:px-10 lg:pb-8">

@@ -1,11 +1,15 @@
+import type { UserRole as PrismaUserRole } from "@/app/generated/prisma/client";
+
+export type { UserRole } from "@/app/generated/prisma/client";
+
 export const userRoles = ["student", "admin"] as const;
 
-export type UserRole = (typeof userRoles)[number];
+const validUserRoles = userRoles satisfies readonly PrismaUserRole[];
 
 export function getUserRole(
   role: string | null | undefined,
-): UserRole {
-  const matchedRole = userRoles.find((userRole) => userRole === role);
+): PrismaUserRole {
+  const matchedRole = validUserRoles.find((userRole) => userRole === role);
 
   if (matchedRole) {
     return matchedRole;

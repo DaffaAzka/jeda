@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
 import { getAuthSession } from "@/lib/auth-session";
@@ -7,7 +8,15 @@ export const metadata = {
   title: `${siteCopy.auth.registerButton} | ${siteCopy.brand}`,
 };
 
-export default async function RegisterRoutePage() {
+export default function RegisterRoutePage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+
+async function RegisterContent() {
   const session = await getAuthSession();
 
   if (session) {

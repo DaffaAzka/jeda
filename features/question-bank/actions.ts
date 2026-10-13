@@ -1,15 +1,23 @@
 "use server";
 
+import type { JSONContent } from "@tiptap/core";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { siteCopy } from "@/lib/copy/id";
 import { getAuthSession } from "@/lib/auth-session";
 import { getUserRole } from "@/lib/user-role";
-
-export type ActionState = {
-  error: string;
-  success: string;
-};
+import {
+  questionInputSchema,
+  questionOptionInputSchema,
+  subtestInputSchema,
+  topicInputSchema,
+  type QuestionInput,
+  type QuestionOptionInput,
+  type SubtestInput,
+  type TopicInput,
+} from "@/features/question-bank/schemas";
+import type { ActionState, MutationConfig } from "@/features/question-bank/types";
 
 const questionBankPath = "/dashboard/question-bank";
 const dashboardPath = "/dashboard";
@@ -19,30 +27,12 @@ const uuidPattern =
 class InputError extends Error {}
 class AuthorizationError extends Error {}
 
-type EditorNode = {
-  type: string;
-  text?: string;
-  attrs?: { latex: string };
-  marks?: { type: string }[];
-  content?: EditorNode[];
-};
-
-type EditorDocument = {
-  type: "doc";
-  content: EditorNode[];
-};
-
-type QuestionOptionInput = {
-  id?: string;
-  content: EditorDocument;
-  isCorrect: boolean;
-};
-
-function editorDocumentHasContent(node: EditorNode): boolean {
+function editorDocumentHasContent(node: JSONContent): boolean {
   if (node.type === "text" && node.text?.trim()) return true;
   if (
     (node.type === "inlineMath" || node.type === "blockMath") &&
-    node.attrs?.latex.trim()
+    typeof node.attrs?.latex === "string" &&
+    node.attrs.latex.trim()
   ) {
     return true;
   }
@@ -119,14 +109,6 @@ function readPrismaErrorCode(error: unknown): string | undefined {
   return typeof error.code === "string" ? error.code : undefined;
 }
 
-type MutationConfig<T> = {
-  operation: string;
-  success: string;
-  failure: string;
-  parse: (formData: FormData) => T;
-  mutate: (data: T) => Promise<void>;
-};
-
 async function handleMutation<T>(
   formData: FormData,
   config: MutationConfig<T>,
@@ -153,7 +135,7 @@ async function handleMutation<T>(
   return { error: "", success: config.success };
 }
 
-function parseEditorNode(value: unknown, depth = 0): EditorNode {
+function parseEditorNode(value: unknown, depth = 0): JSONContent {
   if (
     !value ||
     typeof value !== "object" ||
@@ -183,7 +165,7 @@ function parseEditorNode(value: unknown, depth = 0): EditorNode {
     throw new InputError(siteCopy.questionBank.invalidContent);
   }
 
-  const normalized: EditorNode = { type: node.type };
+  const normalized: JSONContent = { type: node.type };
 
   if (node.type === "text") {
     if (typeof node.text !== "string") {
@@ -235,7 +217,7 @@ function parseEditorNode(value: unknown, depth = 0): EditorNode {
   return normalized;
 }
 
-const emptyEditorDocument: EditorDocument = {
+const emptyEditorDocument: JSONContent = {
   type: "doc",
   content: [{ type: "paragraph" }],
 };
@@ -245,7 +227,7 @@ function readEditorDocument(
   formData: FormData,
   name: string,
   requiredMessage?: string,
-): EditorDocument {
+): JSONContent {
   const rawValue = readString(formData, name);
 
   if (rawValue.length > 20000) {
@@ -274,7 +256,7 @@ function readEditorDocument(
     return emptyEditorDocument;
   }
 
-  return document as EditorDocument;
+  return document;
 }
 
 function parseQuestionOptions(rawValue: string): QuestionOptionInput[] {
@@ -311,7 +293,11 @@ function parseQuestionOptions(rawValue: string): QuestionOptionInput[] {
       id = rawOption.id;
     }
 
-    return { id, content: content as EditorDocument, isCorrect };
+    return questionOptionInputSchema.parse({
+      id,
+      content,
+      isCorrect,
+    });
   });
 
   const optionIds = options.flatMap((option) =>
@@ -362,15 +348,8 @@ function readImageUrl(formData: FormData): string | null {
 
 const subtestCopy = siteCopy.questionBank.messages.subtest;
 
-type SubtestInput = {
-  id: string | null;
-  code: string;
-  name: string;
-  defaultSeconds: number;
-};
-
 function parseSubtest(formData: FormData): SubtestInput {
-  return {
+  return parseWithSchema(subtestInputSchema, {
     id: readOptionalId(formData),
     code: readCode(formData),
     name: readRequiredString(formData, "name", 120, subtestCopy.nameRequired),
@@ -380,7 +359,7 @@ function parseSubtest(formData: FormData): SubtestInput {
       { min: 30, max: 7200 },
       subtestCopy.secondsRange,
     ),
-  };
+  }, subtestCopy.saveError);
 }
 
 async function upsertSubtest({ id, ...fields }: SubtestInput) {
@@ -439,14 +418,12 @@ export async function deleteSubtest(
 
 const topicCopy = siteCopy.questionBank.messages.topic;
 
-type TopicInput = { id: string | null; subtestId: string; name: string };
-
 function parseTopic(formData: FormData): TopicInput {
-  return {
+  return parseWithSchema(topicInputSchema, {
     id: readOptionalId(formData),
     subtestId: readId(formData, "subtestId", topicCopy.subtestRequired),
     name: readRequiredString(formData, "name", 150, topicCopy.nameRequired),
-  };
+  }, topicCopy.saveError);
 }
 
 async function upsertTopic({ id, ...fields }: TopicInput) {
@@ -511,20 +488,8 @@ export async function deleteTopic(
 
 const questionCopy = siteCopy.questionBank.messages.question;
 
-type QuestionInput = {
-  id: string | null;
-  topicId: string;
-  difficulty: number;
-  stem: EditorDocument;
-  imageUrl: string | null;
-  explanation: EditorDocument;
-  expectedSeconds: number;
-  isPublished: boolean;
-  options: QuestionOptionInput[];
-};
-
 function parseQuestion(formData: FormData): QuestionInput {
-  return {
+  return parseWithSchema(questionInputSchema, {
     id: readOptionalId(formData),
     topicId: readId(formData, "topicId", questionCopy.topicRequired),
     difficulty: readNumber(
@@ -544,7 +509,19 @@ function parseQuestion(formData: FormData): QuestionInput {
     ),
     isPublished: formData.get("isPublished") === "on",
     options: readOptions(formData),
-  };
+  }, questionCopy.saveError);
+}
+
+function parseWithSchema<T>(
+  schema: z.ZodType<T>,
+  input: unknown,
+  fallbackMessage: string,
+): T {
+  const result = schema.safeParse(input);
+  if (!result.success) {
+    throw new InputError(result.error.issues[0]?.message ?? fallbackMessage);
+  }
+  return result.data;
 }
 
 function toQuestionFields(data: QuestionInput) {

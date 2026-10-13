@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TopicsManager } from "@/features/question-bank/components/topics-manager";
+import { getTopicManagerData } from "@/features/question-bank/queries";
 import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
-import { prisma } from "@/lib/prisma";
 import { getUserRole } from "@/lib/user-role";
 
 const copy = siteCopy.questionBank;
@@ -17,35 +17,7 @@ export default async function TopicsPage() {
   if (!session) redirect("/login");
   if (getUserRole(session.user.role) !== "admin") redirect("/dashboard");
 
-  const subtests = await prisma.subtest.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      topics: {
-        orderBy: { name: "asc" },
-        select: {
-          id: true,
-          name: true,
-          subtestId: true,
-          _count: { select: { questions: true } },
-        },
-      },
-    },
-  });
-
-  // Flatten to a plain list for the client component
-  const topics = subtests.flatMap((s) =>
-    s.topics.map((t) => ({
-      id: t.id,
-      name: t.name,
-      subtestId: t.subtestId,
-      subtestName: s.name,
-      questionCount: t._count.questions,
-    })),
-  );
-
-  const subtestOptions = subtests.map((s) => ({ id: s.id, name: s.name }));
+  const { subtests, topics } = await getTopicManagerData();
 
   return (
     <main className="min-w-0 flex-1 px-4 pb-24 py-8 sm:px-6 lg:px-10 lg:pb-8">
@@ -64,7 +36,7 @@ export default async function TopicsPage() {
         </p>
 
         <div className="mt-8">
-          <TopicsManager subtests={subtestOptions} topics={topics} />
+          <TopicsManager subtests={subtests} topics={topics} />
         </div>
       </div>
     </main>

@@ -1,22 +1,13 @@
 "use client";
 
 import { deleteTopic, saveTopic } from "@/features/question-bank/actions";
+import type { TopicManagerData } from "@/features/question-bank/queries";
 import { siteCopy } from "@/lib/copy/id";
 import { CrudModal } from "./crud-modal";
 import { DeleteButton } from "./delete-button";
 import { MutationForm } from "./mutation-form";
 
 const copy = siteCopy.questionBank;
-
-type SubtestOption = { id: string; name: string };
-
-type TopicRow = {
-  id: string;
-  name: string;
-  subtestId: string;
-  subtestName: string;
-  questionCount: number;
-};
 
 function Field({
   label,
@@ -46,7 +37,7 @@ function SubtestSelect({
   subtests,
   defaultValue,
 }: {
-  subtests: SubtestOption[];
+  subtests: TopicManagerData["subtests"];
   defaultValue: string;
 }) {
   return (
@@ -73,8 +64,8 @@ function TopicForm({
   defaultSubtestId,
   onClose,
 }: {
-  topic?: TopicRow;
-  subtests: SubtestOption[];
+  topic?: TopicManagerData["topics"][number];
+  subtests: TopicManagerData["subtests"];
   defaultSubtestId: string;
   onClose: () => void;
 }) {
@@ -103,8 +94,8 @@ export function TopicsManager({
   topics,
   subtests,
 }: {
-  topics: TopicRow[];
-  subtests: SubtestOption[];
+  topics: TopicManagerData["topics"];
+  subtests: TopicManagerData["subtests"];
 }) {
   const defaultSubtestId = subtests[0]?.id ?? "";
 

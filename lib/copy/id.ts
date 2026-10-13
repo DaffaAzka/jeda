@@ -218,6 +218,9 @@ export const siteCopy = {
     /* Questions list page */
     questionsTitle: "Pertanyaan",
     questionsDescription: "Daftar semua pertanyaan di bank soal.",
+    questionsPagination: "Navigasi daftar pertanyaan",
+    previousPage: "Sebelumnya",
+    nextPage: "Berikutnya",
     /* Shared */
     subtests: "Subtes",
     topics: "Topik",

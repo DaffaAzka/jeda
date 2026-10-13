@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { QuestionForm } from "@/features/question-bank/components/question-form";
+import {
+  getQuestionEditorData,
+  getQuestionTopicChoices,
+} from "@/features/question-bank/queries";
 import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
-import { prisma } from "@/lib/prisma";
 import { getUserRole } from "@/lib/user-role";
 
 export const metadata = {
@@ -28,43 +31,11 @@ export default async function EditQuestionPage({
     notFound();
   }
 
-  const [question, topics] = await Promise.all([
-    prisma.question.findUnique({
-      where: { id: questionId },
-      include: { options: { orderBy: { label: "asc" } } },
-    }),
-    prisma.topic.findMany({
-      orderBy: [{ subtest: { name: "asc" } }, { name: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        subtest: { select: { name: true } },
-      },
-    }),
+  const [question, topicChoices] = await Promise.all([
+    getQuestionEditorData(questionId),
+    getQuestionTopicChoices(),
   ]);
   if (!question) notFound();
-
-  const topicChoices = topics.map((topic) => ({
-    id: topic.id,
-    name: topic.name,
-    subtestName: topic.subtest.name,
-  }));
-  const initialQuestion = {
-    id: question.id,
-    topicId: question.topicId,
-    difficulty: question.difficulty,
-    stem: question.stem,
-    imageUrl: question.imageUrl,
-    explanation: question.explanation,
-    expectedSeconds: question.expectedSeconds,
-    isPublished: question.isPublished,
-    options: question.options.map((option) => ({
-      id: option.id,
-      body: option.body,
-      label: option.label,
-      isCorrect: option.isCorrect,
-    })),
-  };
 
   return (
     <main className="min-w-0 flex-1 px-4 pb-24 py-8 sm:px-6 lg:px-10 lg:pb-8">
@@ -79,7 +50,7 @@ export default async function EditQuestionPage({
           {siteCopy.questionBank.editQuestion}
         </h1>
         <div className="mt-8">
-          <QuestionForm question={initialQuestion} topics={topicChoices} />
+          <QuestionForm question={question} topics={topicChoices} />
         </div>
       </div>
     </main>

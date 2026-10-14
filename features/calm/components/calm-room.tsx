@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { saveCalmSessionAction } from "../actions";
+import { saveCalmSessionAction, reframeThoughtAction } from "../actions";
+import type { ReframedThoughtResult } from "@/lib/ai/gemini-reframe";
 
 type CalmTab = "breathing" | "grounding" | "reframing" | "journal";
 
@@ -307,11 +308,23 @@ function GroundingExercise() {
   );
 }
 
-// 3. Pikiran vs Fakta (Reframing) Component
+// 3. Pikiran vs Fakta (Reframing) Component with Gemini AI
 function ReframingCards() {
   const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
+  const [inputThought, setInputThought] = useState("");
+  const [aiResult, setAiResult] = useState<ReframedThoughtResult | null>(null);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const cards = [
+  const promptChips = [
+    "Takut nilaiku gak cukup buat jurusan impian",
+    "Waktu ujian makin dekat tapi masih belum siap",
+    "Ngerasa gak sepintar teman-teman sekelas",
+    "Takut bikin orang tua kecewa",
+  ];
+
+  const presetCards = [
     {
       thought: "Skor tryout-ku masih jauh dari target, aku pasti gagal UTBK.",
       fact: "Tryout adalah alat uji dan diagnosis kelemahan materi hari ini, bukan ramalan masa depan. Menemukan kesalahan sekarang justru mencegahnya terjadi saat ujian asli.",
@@ -334,60 +347,252 @@ function ReframingCards() {
     },
   ];
 
+  function handleReframe(thoughtToProcess?: string) {
+    const target = (thoughtToProcess ?? inputThought).trim();
+    if (!target || isPending) return;
+
+    setErrorMessage(null);
+    setSavedSuccess(false);
+
+    startTransition(async () => {
+      const res = await reframeThoughtAction(target);
+      if (res.ok && res.data) {
+        setAiResult(res.data);
+      } else {
+        setErrorMessage(res.error ?? "Gagal memproses reframing. Coba lagi.");
+      }
+    });
+  }
+
+  async function handleSaveAiResult() {
+    if (!aiResult) return;
+    await saveCalmSessionAction({
+      tool: "reframing",
+      durationSeconds: 120,
+      note: `[Reframing AI] Pikiran: "${aiResult.thought}" -> Fakta: "${aiResult.fact}"`,
+    });
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  }
+
   return (
-    <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-6">
-      <div className="border-b border-border/40 pb-4">
-        <h2 className="font-pixelify text-2xl font-bold">
-          Kartu Pikiran versus Fakta
-        </h2>
-        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          Klik kartu untuk membalikkan rasa cemas menjadi fakta objektif yang
-          menenangkan.
-        </p>
+    <div className="space-y-8">
+      {/* AI Reframing Interactive Section */}
+      <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-8 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full border border-border bg-moodi-sky/30 px-2.5 py-0.5 text-xs font-bold text-foreground">
+                Reframing AI ✨
+              </span>
+              <span className="text-xs text-muted-foreground">Didukung Gemini</span>
+            </div>
+            <h2 className="mt-1 font-pixelify text-2xl font-bold text-foreground">
+              Bedah Pikiran yang Mengganggumu
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground max-w-sm">
+            Tuliskan rasa cemas atau takutmu. AI akan membantumu melihat sudut
+            pandang objektif yang lebih menenangkan.
+          </p>
+        </div>
+
+        {/* Input & Prompt Chips */}
+        <div className="space-y-3">
+          <label
+            className="block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+            htmlFor="thought-input"
+          >
+            Apa yang sedang terlintas di pikiranmu saat ini?
+          </label>
+          <div className="relative">
+            <textarea
+              className="w-full resize-none border-2 border-border bg-background p-4 text-sm text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-foreground"
+              id="thought-input"
+              maxLength={350}
+              onChange={(e) => setInputThought(e.target.value)}
+              placeholder="Contoh: Rasanya aku nggak bakal lolos jurusan impian karena tryout kemarin masih jelek..."
+              rows={3}
+              value={inputThought}
+            />
+            <span className="absolute bottom-2 right-3 text-[10px] text-muted-foreground">
+              {inputThought.length}/350
+            </span>
+          </div>
+
+          {/* Quick preset chips */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-[11px] font-medium text-muted-foreground">
+              Contoh cepat:
+            </span>
+            {promptChips.map((chip) => (
+              <button
+                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                key={chip}
+                onClick={() => {
+                  setInputThought(chip);
+                  handleReframe(chip);
+                }}
+                type="button"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          {errorMessage && (
+            <div className="rounded-lg border border-red-500 bg-red-500/10 p-3 text-xs font-semibold text-red-600">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="pt-2">
+            <button
+              className="pixel-press pixel-shadow border-2 border-border bg-moodi-sky px-6 py-2.5 font-bold text-ink shadow-[2px_2px_0_var(--border)] transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60"
+              disabled={isPending || !inputThought.trim()}
+              onClick={() => handleReframe()}
+              type="button"
+            >
+              {isPending ? "Sedang Membedah Pikiran... ⏳" : "Bantu Aku Reframe Pikiran Ini ✨"}
+            </button>
+          </div>
+        </div>
+
+        {/* AI Result Card */}
+        {aiResult && (
+          <div className="mt-6 rounded-xl border-2 border-border bg-muted/30 p-5 sm:p-6 space-y-4 animate-in fade-in duration-300">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
+              <span className="rounded-md border border-border bg-moodi-sand/50 px-2.5 py-1 text-xs font-bold text-foreground">
+                🎯 Pola Pikir Terdeteksi: {aiResult.distortion}
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                Teknik Cognitive Reframing
+              </span>
+            </div>
+
+            {/* Validation Message */}
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-xs font-bold text-moodi-pink uppercase tracking-wide">
+                💚 Validasi Perasaanmu:
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground">
+                {aiResult.validation}
+              </p>
+            </div>
+
+            {/* Side-by-side: Thought vs Fact */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="rounded-lg border-2 border-border bg-background p-4 space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  💭 Pikiran Awal yang Membuat Cemas
+                </span>
+                <p className="text-sm font-medium italic text-foreground/80 leading-relaxed">
+                  &ldquo;{aiResult.thought}&rdquo;
+                </p>
+              </div>
+
+              <div className="rounded-lg border-2 border-border bg-moodi-sky/30 p-4 space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink">
+                  ✨ Fakta Objektif & Menenangkan
+                </span>
+                <p className="text-sm font-semibold text-foreground leading-relaxed">
+                  {aiResult.fact}
+                </p>
+              </div>
+            </div>
+
+            {/* Small Action Step */}
+            <div className="rounded-lg border border-border bg-card p-4 flex items-start gap-3">
+              <span className="text-xl">💡</span>
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-foreground">
+                  Langkah Kecil Hari Ini:
+                </span>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {aiResult.smallStep}
+                </p>
+              </div>
+            </div>
+
+            {/* Footer action buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                className="rounded-lg border-2 border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-[1px_1px_0_var(--border)] hover:bg-muted"
+                onClick={handleSaveAiResult}
+                type="button"
+              >
+                {savedSuccess ? "✓ Tersimpan di Sesi Tenang!" : "Simpan ke Catatan Tenang"}
+              </button>
+              <button
+                className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setAiResult(null);
+                  setInputThought("");
+                }}
+                type="button"
+              >
+                Coba Pikiran Lain
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {cards.map((card, idx) => {
-          const isFlipped = flippedIndex === idx;
+      {/* Preset Inspirasi Cepat */}
+      <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-6">
+        <div className="border-b border-border/40 pb-4">
+          <h3 className="font-pixelify text-xl font-bold">
+            Kartu Inspirasi Cepat (Pikiran vs Fakta Umum)
+          </h3>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+            Klik kartu di bawah untuk membalikkan rasa cemas yang paling sering
+            dialami pejuang UTBK.
+          </p>
+        </div>
 
-          return (
-            <article
-              className={`pixel-shadow cursor-pointer border-2 border-border p-5 transition-all ${
-                isFlipped ? "bg-moodi-sky/30" : "bg-background hover:bg-muted"
-              }`}
-              key={idx}
-              onClick={() => setFlippedIndex(isFlipped ? null : idx)}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="flex items-center justify-between border-b border-border/30 pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {isFlipped ? "✨ Fakta Nyata" : "💭 Pikiran Otomatis"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {isFlipped ? "Klik untuk tutup" : "Klik untuk balik →"}
-                </span>
-              </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {presetCards.map((card, idx) => {
+            const isFlipped = flippedIndex === idx;
 
-              <div className="py-3 min-h-24">
-                {!isFlipped ? (
-                  <p className="font-semibold text-foreground leading-relaxed text-sm sm:text-base">
-                    &ldquo;{card.thought}&rdquo;
-                  </p>
-                ) : (
-                  <div className="space-y-2">
+            return (
+              <article
+                className={`pixel-shadow cursor-pointer border-2 border-border p-5 transition-all ${
+                  isFlipped ? "bg-moodi-sky/30" : "bg-background hover:bg-muted"
+                }`}
+                key={idx}
+                onClick={() => setFlippedIndex(isFlipped ? null : idx)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {isFlipped ? "✨ Fakta Nyata" : "💭 Pikiran Otomatis"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {isFlipped ? "Klik untuk tutup" : "Klik untuk balik →"}
+                  </span>
+                </div>
+
+                <div className="py-3 min-h-24">
+                  {!isFlipped ? (
                     <p className="font-semibold text-foreground leading-relaxed text-sm sm:text-base">
-                      {card.fact}
+                      &ldquo;{card.thought}&rdquo;
                     </p>
-                    <p className="text-xs font-medium text-muted-foreground border-t border-border/30 pt-2">
-                      💡 {card.tip}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </article>
-          );
-        })}
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="font-semibold text-foreground leading-relaxed text-sm sm:text-base">
+                        {card.fact}
+                      </p>
+                      <p className="text-xs font-medium text-muted-foreground border-t border-border/30 pt-2">
+                        💡 {card.tip}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

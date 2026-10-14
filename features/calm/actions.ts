@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAuthSession } from "@/lib/auth-session";
 import type { CalmTool, CalmTrigger } from "@/app/generated/prisma/enums";
+import { reframeThoughtWithGemini, type ReframedThoughtResult } from "@/lib/ai/gemini-reframe";
 
 export async function saveCalmSessionAction({
   tool,
@@ -44,5 +45,29 @@ export async function saveCalmSessionAction({
   } catch (err) {
     console.error("Failed to save calm session:", err);
     return { error: "Gagal menyimpan sesi tenang." };
+  }
+}
+
+export async function reframeThoughtAction(
+  thought: string,
+): Promise<{ ok: boolean; data?: ReframedThoughtResult; error?: string }> {
+  const session = await getAuthSession();
+  if (!session) return { ok: false, error: "Unauthorized" };
+
+  const clean = thought?.trim();
+  if (!clean || clean.length < 3) {
+    return { ok: false, error: "Tuliskan sedikit pikiran atau hal yang sedang membuatmu cemas." };
+  }
+
+  if (clean.length > 350) {
+    return { ok: false, error: "Pikiran terlalu panjang (maksimal 350 karakter)." };
+  }
+
+  try {
+    const result = await reframeThoughtWithGemini(clean);
+    return { ok: true, data: result };
+  } catch (err) {
+    console.error("Reframing action error:", err);
+    return { ok: false, error: "Gagal memproses reframing saat ini. Coba lagi nanti." };
   }
 }

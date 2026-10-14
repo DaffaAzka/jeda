@@ -30,7 +30,9 @@ export function getTimerPlan(
       };
     case "timed":
       return {
-        limitSeconds: Math.round(subtestLimitSeconds * config.looseTimeMultiplier),
+        limitSeconds: Math.round(
+          subtestLimitSeconds * config.looseTimeMultiplier,
+        ),
         onExpiry: "prompt",
         panicPausesTimer: true,
       };
@@ -71,10 +73,11 @@ export function getAllowedLevels(
     {
       level: "timed",
       label: "Latihan waktu",
-      description: "Timer longgar, berhenti saat Napas dulu",
+      description: "Timer longgar, berhenti saat Nafas dulu",
       recommended: mode === "balanced",
-      recoveryNotice: isRecovery
-        ? "Di mode Pemulihan, kamu disarankan memilih mode Santai agar tidak menambah tekanan."
+      recoveryNotice:
+        isRecovery ?
+          "Di mode Pemulihan, kamu disarankan memilih mode Santai agar tidak menambah tekanan."
         : undefined,
     },
     {
@@ -82,8 +85,9 @@ export function getAllowedLevels(
       label: "Simulasi penuh",
       description: "Batas waktu asli, timer tetap jalan",
       recommended: mode === "challenge",
-      recoveryNotice: isRecovery
-        ? "Di mode Pemulihan, simulasi penuh mungkin terasa berat hari ini."
+      recoveryNotice:
+        isRecovery ?
+          "Di mode Pemulihan, simulasi penuh mungkin terasa berat hari ini."
         : undefined,
     },
   ];

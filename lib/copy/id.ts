@@ -83,7 +83,7 @@ export const siteCopy = {
       {
         title: "Ruang tenang",
         description:
-          "Ruang untuk berhenti sejenak dan mencoba latihan napas singkat saat dibutuhkan.",
+          "Ruang untuk berhenti sejenak dan mencoba latihan Nafas singkat saat dibutuhkan.",
         icon: "breath",
       },
     ],
@@ -91,8 +91,7 @@ export const siteCopy = {
     closingDescription:
       "Buat akun untuk melihat dashboard awal MOODI. Fitur belajar akan hadir setelah siap.",
     footerTagline: "Belajar dengan jeda, bertumbuh dengan ritme sendiri.",
-    sdg:
-      "MOODI mendukung perhatian pada kesejahteraan dan akses pendidikan.",
+    sdg: "MOODI mendukung perhatian pada kesejahteraan dan akses pendidikan.",
     disclaimer:
       "MOODI mendukung kesejahteraanmu, bukan pengganti psikolog atau konselor.",
     privacy: "Privasi",
@@ -144,7 +143,12 @@ export const siteCopy = {
         emptyDescription:
           "Dashboard MOODI masih kosong karena fitur belajar belum tersedia. Kami akan menampilkan aktivitasmu di sini saat fitur sudah siap.",
         navigation: [
-          { label: "Beranda", icon: "home", available: true, href: "/dashboard" },
+          {
+            label: "Beranda",
+            icon: "home",
+            available: true,
+            href: "/dashboard",
+          },
           {
             label: "Belajar",
             icon: "book",
@@ -177,7 +181,7 @@ export const siteCopy = {
             available: true,
             href: "/dashboard/question-bank",
           },
-          
+
           { label: "Bantuan", icon: "calm", available: false },
         ],
       },
@@ -202,7 +206,8 @@ export const siteCopy = {
     manageTopics: "Kelola topik",
     manageTopicsDesc: "Atur topik di setiap subtes untuk pengelompokan soal.",
     manageQuestions: "Kelola pertanyaan",
-    manageQuestionsDesc: "Buat, ubah, dan terbitkan pertanyaan beserta opsi jawaban.",
+    manageQuestionsDesc:
+      "Buat, ubah, dan terbitkan pertanyaan beserta opsi jawaban.",
     /* Subtests page */
     subtestsTitle: "Subtes",
     subtestsDescription: "Tambah, ubah, dan hapus subtes UTBK.",
@@ -309,13 +314,15 @@ export const siteCopy = {
         deleteError: "Topik belum terhapus. Cek koneksimu, lalu coba lagi.",
         nameRequired: "Isi nama topik, maksimal 150 karakter.",
         subtestRequired: "Pilih subtes untuk topik ini.",
-        subtestMissing: "Subtes yang dipilih sudah tidak ada. Muat ulang halaman.",
+        subtestMissing:
+          "Subtes yang dipilih sudah tidak ada. Muat ulang halaman.",
       },
       question: {
         saveSuccess: "Pertanyaan tersimpan.",
         deleteSuccess: "Pertanyaan terhapus.",
         saveError: "Pertanyaan belum tersimpan. Cek koneksimu, lalu coba lagi.",
-        deleteError: "Pertanyaan belum terhapus. Cek koneksimu, lalu coba lagi.",
+        deleteError:
+          "Pertanyaan belum terhapus. Cek koneksimu, lalu coba lagi.",
         stemRequired: "Isi teks pertanyaan terlebih dahulu.",
         topicRequired: "Pilih topik untuk pertanyaan ini.",
         topicMissing: "Topik yang dipilih sudah tidak ada. Muat ulang halaman.",
@@ -336,7 +343,8 @@ export const siteCopy = {
     resumeSession: "Lanjutkan sesi",
     leaveForNow: "Keluar sementara",
     activeSessionCardTitle: "Sesi aktif yang sedang berjalan",
-    activeSessionSubtitle: "Kamu punya sesi yang belum selesai. Lanjutkan kapan saja.",
+    activeSessionSubtitle:
+      "Kamu punya sesi yang belum selesai. Lanjutkan kapan saja.",
     recentSessionsTitle: "Riwayat sesi tryout",
     noRecentSessions: "Belum ada riwayat tryout yang diselesaikan.",
     questionCountPreset: "Jumlah soal",
@@ -345,8 +353,10 @@ export const siteCopy = {
     chooseTopic: "Pilih topik",
     questionsAvailable: "soal tersedia",
     notEnoughQuestions: "Soal di topik ini belum cukup.",
-    fewerQuestionsUsed: "Hanya tersedia {available} soal yang siap. Semua akan digunakan.",
-    emptyTopicsInSubtest: "Belum ada topik dengan soal yang terbit di subtes ini.",
+    fewerQuestionsUsed:
+      "Hanya tersedia {available} soal yang siap. Semua akan digunakan.",
+    emptyTopicsInSubtest:
+      "Belum ada topik dengan soal yang terbit di subtes ini.",
     noSubtestsAvailable: "Belum ada subtes yang tersedia.",
     progressText: "{answered} soal dikerjakan, {accuracy}% benar",
     noProgressYet: "Belum pernah dikerjakan",
@@ -361,32 +371,37 @@ export const siteCopy = {
     nextQuestion: "Berikutnya",
     finish: "Selesai",
     finishConfirmTitle: "Konfirmasi selesai",
-    finishConfirmWithUnanswered: "Masih ada {count} soal yang belum dijawab. Selesaikan sekarang?",
+    finishConfirmWithUnanswered:
+      "Masih ada {count} soal yang belum dijawab. Selesaikan sekarang?",
     finishConfirmAllAnswered: "Semua soal sudah dijawab. Selesaikan sekarang?",
     softTimerEnd: "Waktu latihanmu habis. Mau lanjut atau selesai?",
     continuePractice: "Lanjut latihan",
     finishNow: "Selesaikan sekarang",
     cancel: "Batal",
-    saveAnswerError: "Jawabanmu belum tersimpan. Cek koneksimu, lalu pilih lagi.",
+    saveAnswerError:
+      "Jawabanmu belum tersimpan. Cek koneksimu, lalu pilih lagi.",
     activeSessionFound: "Kamu masih memiliki sesi yang aktif.",
     // Panic Button & Breathing
-    panicButton: "Napas dulu",
-    panicLooseNotice: "Timer dijeda sejenak. Ambil napas panjang, lalu lanjut saat siap.",
-    panicFullNotice: "Waktu tetap berjalan. Ambil napas panjang, lalu lanjut.",
+    panicButton: "Nafas dulu",
+    panicLooseNotice:
+      "Timer dijeda sejenak. Ambil Nafas panjang, lalu lanjut saat siap.",
+    panicFullNotice: "Waktu tetap berjalan. Ambil Nafas panjang, lalu lanjut.",
     panicClose: "Kembali ke soal",
-    breathingInhale: "Tarik napas",
-    breathingHoldIn: "Tahan napas",
+    breathingInhale: "Tarik Nafas",
+    breathingHoldIn: "Tahan Nafas",
     breathingExhale: "Hembuskan",
     breathingHoldOut: "Tahan",
     breathingStepCounter: "Langkah {current} dari {total}",
-    reducedMotionBreathingText: "Ikuti hitungan napas kotak (4-4-4-4) perlahan.",
+    reducedMotionBreathingText:
+      "Ikuti hitungan Nafas kotak (4-4-4-4) perlahan.",
     // Immediate review in Santai
     showExplanation: "Lihat pembahasan",
     immediateCorrect: "Jawabanmu tepat!",
     immediateWrong: "Perlu dicek lagi.",
     // Review and Autopsy
     reviewTitle: "Hasil & Pembahasan",
-    reviewSubtitle: "Evaluasi jawabanmu dan kenali pola kesalahan tanpa rasa bersalah.",
+    reviewSubtitle:
+      "Evaluasi jawabanmu dan kenali pola kesalahan tanpa rasa bersalah.",
     resultSummary: "{correct} dari {total} soal benar",
     labelCorrect: "Benar",
     labelCheckAgain: "Perlu dicek lagi",
@@ -398,7 +413,8 @@ export const siteCopy = {
     errorAutopsyTitle: "Error Autopsy",
     errorAutopsySubtitle:
       "Tandai penyebab jawaban yang belum tepat agar kamu tahu apakah masalahnya di pemahaman materi atau tekanan waktu.",
-    initialGuessNote: "Tebakan awal dari waktu pengerjaan. Ubah kalau kurang pas.",
+    initialGuessNote:
+      "Tebakan awal dari waktu pengerjaan. Ubah kalau kurang pas.",
     tagSaved: "Penyebab kesalahan disimpan.",
     tagSaveError: "Gagal menyimpan label kesalahan. Coba lagi.",
     errorTags: {

@@ -65,7 +65,9 @@ async function main() {
       topicMap.set(`${s.code}:${t.name}`, topic.id);
     }
   }
-  console.log(`✓ Seeded ${subtestMap.size} subtests and ${topicMap.size} topics.`);
+  console.log(
+    `✓ Seeded ${subtestMap.size} subtests and ${topicMap.size} topics.`,
+  );
 
   // ==========================================
   // 2. Seed Original Questions
@@ -83,7 +85,9 @@ async function main() {
   for (const q of SEED_QUESTIONS) {
     const topicId = topicMap.get(`${q.subtestCode}:${q.topicName}`);
     if (!topicId) {
-      console.warn(`Topic not found for ${q.subtestCode}:${q.topicName}, skipping.`);
+      console.warn(
+        `Topic not found for ${q.subtestCode}:${q.topicName}, skipping.`,
+      );
       continue;
     }
 
@@ -134,7 +138,9 @@ async function main() {
       })),
     });
   }
-  console.log(`✓ Processed ${seededQuestionsList.length} questions (${createdQuestionsCount} new created).`);
+  console.log(
+    `✓ Processed ${seededQuestionsList.length} questions (${createdQuestionsCount} new created).`,
+  );
 
   // ==========================================
   // 3. Seed Verified Support Resources
@@ -169,7 +175,9 @@ async function main() {
       });
     }
   }
-  console.log(`✓ Seeded ${SEED_SUPPORT_RESOURCES.length} verified support resources.`);
+  console.log(
+    `✓ Seeded ${SEED_SUPPORT_RESOURCES.length} verified support resources.`,
+  );
 
   // ==========================================
   // 4. Seed Demo Student Account & Profile
@@ -218,7 +226,9 @@ async function main() {
     data: { role: "admin" },
   });
 
-  console.log(`✓ Demo student ready: ${demoUser.name} (${demoUser.email}, ID: ${demoUserId})`);
+  console.log(
+    `✓ Demo student ready: ${demoUser.name} (${demoUser.email}, ID: ${demoUserId})`,
+  );
 
   // ==========================================
   // 5. Seed 14 Days of Check-ins (The Demo Story)
@@ -230,19 +240,61 @@ async function main() {
   // Checkin data points: High initial energy, rising stress, culminating in Day 0 (today)
   // Day 0: 4.0 hours of sleep, stress 4 -> lands in "Pemulihan" (Recovery mode) per rules.ts
   const checkinData = [
-    { dayOffset: 13, sleep: 7.0, energy: 4, mood: 4, stress: 2, note: "Memulai jadwal belajar baru dengan semangat!" },
+    {
+      dayOffset: 13,
+      sleep: 7.0,
+      energy: 4,
+      mood: 4,
+      stress: 2,
+      note: "Memulai jadwal belajar baru dengan semangat!",
+    },
     { dayOffset: 12, sleep: 6.5, energy: 3, mood: 4, stress: 2, note: null },
     { dayOffset: 11, sleep: 7.0, energy: 4, mood: 4, stress: 2, note: null },
-    { dayOffset: 10, sleep: 7.5, energy: 5, mood: 5, stress: 1, note: "Tidur nyenyak 7.5 jam, sangat fokus latihan soal." },
-    { dayOffset: 9,  sleep: 6.8, energy: 4, mood: 4, stress: 2, note: null },
-    { dayOffset: 8,  sleep: 7.2, energy: 4, mood: 4, stress: 2, note: null },
-    { dayOffset: 7,  sleep: 7.0, energy: 4, mood: 4, stress: 2, note: "Sesi review mingguan berjalan lancar." },
-    { dayOffset: 6,  sleep: 6.0, energy: 3, mood: 3, stress: 3, note: null },
-    { dayOffset: 5,  sleep: 6.5, energy: 4, mood: 4, stress: 2, note: null },
-    { dayOffset: 4,  sleep: 6.0, energy: 3, mood: 3, stress: 3, note: "Mulai agak cemas menjelang jadwal tryout simulasi penuh." },
-    { dayOffset: 3,  sleep: 5.5, energy: 3, mood: 3, stress: 3, note: null },
-    { dayOffset: 2,  sleep: 5.2, energy: 3, mood: 3, stress: 4, note: "Malam simulasi penuh, sempat grogi di 15 menit terakhir." },
-    { dayOffset: 1,  sleep: 4.8, energy: 2, mood: 2, stress: 4, note: "Banyak tugas sekolah menumpuk dan belajar larut malam." },
+    {
+      dayOffset: 10,
+      sleep: 7.5,
+      energy: 5,
+      mood: 5,
+      stress: 1,
+      note: "Tidur nyenyak 7.5 jam, sangat fokus latihan soal.",
+    },
+    { dayOffset: 9, sleep: 6.8, energy: 4, mood: 4, stress: 2, note: null },
+    { dayOffset: 8, sleep: 7.2, energy: 4, mood: 4, stress: 2, note: null },
+    {
+      dayOffset: 7,
+      sleep: 7.0,
+      energy: 4,
+      mood: 4,
+      stress: 2,
+      note: "Sesi review mingguan berjalan lancar.",
+    },
+    { dayOffset: 6, sleep: 6.0, energy: 3, mood: 3, stress: 3, note: null },
+    { dayOffset: 5, sleep: 6.5, energy: 4, mood: 4, stress: 2, note: null },
+    {
+      dayOffset: 4,
+      sleep: 6.0,
+      energy: 3,
+      mood: 3,
+      stress: 3,
+      note: "Mulai agak cemas menjelang jadwal tryout simulasi penuh.",
+    },
+    { dayOffset: 3, sleep: 5.5, energy: 3, mood: 3, stress: 3, note: null },
+    {
+      dayOffset: 2,
+      sleep: 5.2,
+      energy: 3,
+      mood: 3,
+      stress: 4,
+      note: "Malam simulasi penuh, sempat grogi di 15 menit terakhir.",
+    },
+    {
+      dayOffset: 1,
+      sleep: 4.8,
+      energy: 2,
+      mood: 2,
+      stress: 4,
+      note: "Banyak tugas sekolah menumpuk dan belajar larut malam.",
+    },
     {
       dayOffset: 0,
       sleep: 4.0,
@@ -288,7 +340,9 @@ async function main() {
   // 6. Seed Daily Plan for Today (Recovery Mode)
   // ==========================================
   console.log("📋 Seeding adaptive daily plan for today (Mode Pemulihan)...");
-  const pmTopicId = topicMap.get("PM:Fungsi Kuadrat") ?? topicMap.get("PM:Model Matematika & Optimasi");
+  const pmTopicId =
+    topicMap.get("PM:Fungsi Kuadrat") ??
+    topicMap.get("PM:Model Matematika & Optimasi");
   const kpuTopicId = topicMap.get("KPU:Penalaran Deduktif");
 
   // Remove existing plan for today if re-seeding
@@ -305,7 +359,8 @@ async function main() {
       planDate: today,
       mode: DayMode.recovery,
       ruleKey: "recovery",
-      reason: "Waktu tidur kurang dari 5 jam dan tingkat stres tinggi. Hari ini disarankan istirahat aktif dan latihan ringan tanpa beban waktu.",
+      reason:
+        "Waktu tidur kurang dari 5 jam dan tingkat stres tinggi. Hari ini disarankan istirahat aktif dan latihan ringan tanpa beban waktu.",
       tasks: {
         create: [
           {
@@ -319,7 +374,7 @@ async function main() {
           },
           {
             type: TaskType.calm,
-            title: "Latihan Pernapasan Kotak (Box Breathing)",
+            title: "Latihan PerNafasan Kotak (Box Breathing)",
             reason: "Meredakan ketegangan fisik dan menurunkan detak jantung",
             estMinutes: 5,
             status: TaskStatus.done,
@@ -328,7 +383,8 @@ async function main() {
           {
             type: TaskType.practice,
             title: "Latihan Santai 5 Soal Penalaran Deduktif",
-            reason: "Latihan santai tanpa batas waktu untuk menjaga ritme belajar",
+            reason:
+              "Latihan santai tanpa batas waktu untuk menjaga ritme belajar",
             estMinutes: 15,
             status: TaskStatus.pending,
             sortOrder: 2,
@@ -338,7 +394,9 @@ async function main() {
       },
     },
   });
-  console.log("✓ Seeded today's adaptive plan in Recovery mode with 3 light tasks.");
+  console.log(
+    "✓ Seeded today's adaptive plan in Recovery mode with 3 light tasks.",
+  );
 
   // ==========================================
   // 7. Seed Demo Sessions & The Error Autopsy Story
@@ -353,9 +411,14 @@ async function main() {
   // SESSION A: 2 days ago — Full Simulation (Simulasi Penuh 30 menit)
   // Demonstrates the signature finding:
   // "Most errors happen in the last 15 minutes due to time pressure and panic!"
-  const kpuQuestions = seededQuestionsList.filter((q) => q.subtestCode === "KPU");
+  const kpuQuestions = seededQuestionsList.filter(
+    (q) => q.subtestCode === "KPU",
+  );
   const pmQuestions = seededQuestionsList.filter((q) => q.subtestCode === "PM");
-  const simulationQuestions = [...kpuQuestions.slice(0, 6), ...pmQuestions.slice(0, 6)];
+  const simulationQuestions = [
+    ...kpuQuestions.slice(0, 6),
+    ...pmQuestions.slice(0, 6),
+  ];
 
   const simStartedAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
   simStartedAt.setHours(14, 0, 0, 0);
@@ -372,7 +435,7 @@ async function main() {
       startedAt: simStartedAt,
       endsAt: simFinishedAt,
       finishedAt: simFinishedAt,
-      score: 50.00, // 6 correct, 6 wrong out of 12
+      score: 50.0, // 6 correct, 6 wrong out of 12
     },
   });
 
@@ -381,19 +444,103 @@ async function main() {
   // Q6 - Q11 (last 15 minutes: elapsed 920s - 1780s): 1 correct, 5 wrong (panic, out_of_time, careless)
   const answersPlanA = [
     // --- First 15 Minutes ---
-    { qIdx: 0, isCorrect: true,  secondsSpent: 75,  elapsedSeconds: 75,   tag: null,                  source: null },
-    { qIdx: 1, isCorrect: true,  secondsSpent: 85,  elapsedSeconds: 160,  tag: null,                  source: null },
-    { qIdx: 2, isCorrect: true,  secondsSpent: 110, elapsedSeconds: 270,  tag: null,                  source: null },
-    { qIdx: 3, isCorrect: false, secondsSpent: 130, elapsedSeconds: 400,  tag: ErrorCause.didnt_know, source: TagSource.user },
-    { qIdx: 4, isCorrect: true,  secondsSpent: 160, elapsedSeconds: 560,  tag: null,                  source: null },
-    { qIdx: 5, isCorrect: true,  secondsSpent: 160, elapsedSeconds: 720,  tag: null,                  source: null },
+    {
+      qIdx: 0,
+      isCorrect: true,
+      secondsSpent: 75,
+      elapsedSeconds: 75,
+      tag: null,
+      source: null,
+    },
+    {
+      qIdx: 1,
+      isCorrect: true,
+      secondsSpent: 85,
+      elapsedSeconds: 160,
+      tag: null,
+      source: null,
+    },
+    {
+      qIdx: 2,
+      isCorrect: true,
+      secondsSpent: 110,
+      elapsedSeconds: 270,
+      tag: null,
+      source: null,
+    },
+    {
+      qIdx: 3,
+      isCorrect: false,
+      secondsSpent: 130,
+      elapsedSeconds: 400,
+      tag: ErrorCause.didnt_know,
+      source: TagSource.user,
+    },
+    {
+      qIdx: 4,
+      isCorrect: true,
+      secondsSpent: 160,
+      elapsedSeconds: 560,
+      tag: null,
+      source: null,
+    },
+    {
+      qIdx: 5,
+      isCorrect: true,
+      secondsSpent: 160,
+      elapsedSeconds: 720,
+      tag: null,
+      source: null,
+    },
     // --- Last 15 Minutes (High pressure & panic!) ---
-    { qIdx: 6,  isCorrect: true,  secondsSpent: 190, elapsedSeconds: 910,  tag: null,                   source: null },
-    { qIdx: 7,  isCorrect: false, secondsSpent: 180, elapsedSeconds: 1090, tag: ErrorCause.panic,      source: TagSource.user },
-    { qIdx: 8,  isCorrect: false, secondsSpent: 210, elapsedSeconds: 1300, tag: ErrorCause.panic,      source: TagSource.user },
-    { qIdx: 9,  isCorrect: false, secondsSpent: 160, elapsedSeconds: 1460, tag: ErrorCause.careless,   source: TagSource.user },
-    { qIdx: 10, isCorrect: false, secondsSpent: 170, elapsedSeconds: 1630, tag: ErrorCause.out_of_time, source: TagSource.user },
-    { qIdx: 11, isCorrect: false, secondsSpent: 150, elapsedSeconds: 1780, tag: ErrorCause.out_of_time, source: TagSource.user },
+    {
+      qIdx: 6,
+      isCorrect: true,
+      secondsSpent: 190,
+      elapsedSeconds: 910,
+      tag: null,
+      source: null,
+    },
+    {
+      qIdx: 7,
+      isCorrect: false,
+      secondsSpent: 180,
+      elapsedSeconds: 1090,
+      tag: ErrorCause.panic,
+      source: TagSource.user,
+    },
+    {
+      qIdx: 8,
+      isCorrect: false,
+      secondsSpent: 210,
+      elapsedSeconds: 1300,
+      tag: ErrorCause.panic,
+      source: TagSource.user,
+    },
+    {
+      qIdx: 9,
+      isCorrect: false,
+      secondsSpent: 160,
+      elapsedSeconds: 1460,
+      tag: ErrorCause.careless,
+      source: TagSource.user,
+    },
+    {
+      qIdx: 10,
+      isCorrect: false,
+      secondsSpent: 170,
+      elapsedSeconds: 1630,
+      tag: ErrorCause.out_of_time,
+      source: TagSource.user,
+    },
+    {
+      qIdx: 11,
+      isCorrect: false,
+      secondsSpent: 150,
+      elapsedSeconds: 1780,
+      tag: ErrorCause.out_of_time,
+      source: TagSource.user,
+    },
   ];
 
   for (let sortOrder = 0; sortOrder < answersPlanA.length; sortOrder++) {
@@ -416,7 +563,9 @@ async function main() {
         elapsedSeconds: plan.elapsedSeconds,
         errorTag: plan.tag,
         tagSource: plan.source,
-        answeredAt: new Date(simStartedAt.getTime() + plan.elapsedSeconds * 1000),
+        answeredAt: new Date(
+          simStartedAt.getTime() + plan.elapsedSeconds * 1000,
+        ),
       },
     });
   }
@@ -429,14 +578,16 @@ async function main() {
       tool: CalmTool.breathing,
       triggerSource: CalmTrigger.panic_button,
       durationSeconds: 60,
-      note: "Mengambil napas 4-4-4-4 saat panik di menit ke-22 simulasi ketika melihat waktu menipis.",
+      note: "Mengambil Nafas 4-4-4-4 saat panik di menit ke-22 simulasi ketika melihat waktu menipis.",
       createdAt: new Date(simStartedAt.getTime() + 1320 * 1000),
     },
   });
 
   // SESSION B: 5 days ago — Timed Practice (Latihan Waktu)
   const pkSubtestId = subtestMap.get("PK");
-  const pkQuestions = seededQuestionsList.filter((q) => q.subtestCode === "PK").slice(0, 5);
+  const pkQuestions = seededQuestionsList
+    .filter((q) => q.subtestCode === "PK")
+    .slice(0, 5);
   const timedStartedAt = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
   timedStartedAt.setHours(16, 0, 0, 0);
 
@@ -449,14 +600,17 @@ async function main() {
       startedAt: timedStartedAt,
       endsAt: new Date(timedStartedAt.getTime() + 600 * 1000),
       finishedAt: new Date(timedStartedAt.getTime() + 450 * 1000),
-      score: 80.00, // 4 of 5
+      score: 80.0, // 4 of 5
     },
   });
 
   for (let i = 0; i < pkQuestions.length; i++) {
     const qData = pkQuestions[i];
     const isCorrect = i !== 2;
-    const chosen = isCorrect ? qData.options.find((o) => o.isCorrect) : qData.options.find((o) => !o.isCorrect);
+    const chosen =
+      isCorrect ?
+        qData.options.find((o) => o.isCorrect)
+      : qData.options.find((o) => !o.isCorrect);
 
     await prisma.sessionAnswer.create({
       data: {
@@ -476,7 +630,9 @@ async function main() {
 
   // SESSION C: 8 days ago — Relaxed Practice (Santai)
   const kmbmSubtestId = subtestMap.get("KMBM");
-  const kmbmQuestions = seededQuestionsList.filter((q) => q.subtestCode === "KMBM").slice(0, 5);
+  const kmbmQuestions = seededQuestionsList
+    .filter((q) => q.subtestCode === "KMBM")
+    .slice(0, 5);
   const relaxedStartedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
   relaxedStartedAt.setHours(10, 0, 0, 0);
 
@@ -489,7 +645,7 @@ async function main() {
       startedAt: relaxedStartedAt,
       endsAt: null,
       finishedAt: new Date(relaxedStartedAt.getTime() + 400 * 1000),
-      score: 100.00, // 5 of 5
+      score: 100.0, // 5 of 5
     },
   });
 
@@ -513,7 +669,9 @@ async function main() {
     });
   }
 
-  console.log("✓ Seeded 3 tryout sessions (Full Simulation, Timed Practice, Relaxed Practice).");
+  console.log(
+    "✓ Seeded 3 tryout sessions (Full Simulation, Timed Practice, Relaxed Practice).",
+  );
 
   // ==========================================
   // 8. Seed Topic Stats for Demo Student
@@ -571,7 +729,7 @@ async function main() {
       tool: CalmTool.breathing,
       triggerSource: CalmTrigger.plan,
       durationSeconds: 300,
-      note: "Pernapasan kotak 4-4-4-4 pagi hari untuk menenangkan pikiran sebelum mulai belajar.",
+      note: "PerNafasan kotak 4-4-4-4 pagi hari untuk menenangkan pikiran sebelum mulai belajar.",
       createdAt: new Date(),
     },
   });

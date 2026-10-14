@@ -166,9 +166,14 @@ export const getMockExamData = cache(async (userId: string) => {
     }))
     .filter((s) => s.questionCount > 0);
 
+  const formattedRecentSessions = recentSessions.map((s) => ({
+    ...s,
+    score: s.score !== null ? Number(s.score) : null,
+  }));
+
   return {
     subtests: subtestsWithCounts,
-    recentSessions,
+    recentSessions: formattedRecentSessions,
     activeSession,
   };
 });
@@ -288,7 +293,10 @@ export const getSessionReviewData = cache(
       return null;
     }
 
-    return session;
+    return {
+      ...session,
+      score: session.score !== null ? Number(session.score) : null,
+    };
   },
 );
 

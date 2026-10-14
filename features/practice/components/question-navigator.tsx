@@ -106,11 +106,6 @@ export function QuestionNavigator({
             <span aria-hidden="true" className="text-base">🌿</span>
             <span>{siteCopy.practice.panicButton}</span>
           </button>
-          <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-            {isFullSimulation
-              ? "Latihan napas 60s (waktu ujian tetap berjalan)"
-              : "Latihan napas 60s (timer otomatis dijeda)"}
-          </p>
         </div>
       )}
     </div>

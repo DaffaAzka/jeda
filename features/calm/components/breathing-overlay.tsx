@@ -55,8 +55,7 @@ function ActiveBreathingOverlay({
       aria-labelledby="breathing-title"
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-      role="dialog"
-    >
+      role="dialog">
       <div className="pixel-shadow flex max-w-md w-full flex-col items-center justify-between border-2 border-border bg-card p-6 text-center sm:p-8">
         <div className="space-y-1">
           <span className="inline-block border border-border bg-moodi-peach px-2.5 py-0.5 text-xs font-semibold text-ink">
@@ -64,14 +63,13 @@ function ActiveBreathingOverlay({
           </span>
           <h2
             className="font-pixelify text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
-            id="breathing-title"
-          >
-            Tarik Napas Sejenak
+            id="breathing-title">
+            Tarik Nafas Sejenak
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            {isFullSimulation
-              ? siteCopy.practice.panicFullNotice
-              : siteCopy.practice.panicLooseNotice}
+            {isFullSimulation ?
+              siteCopy.practice.panicFullNotice
+            : siteCopy.practice.panicLooseNotice}
           </p>
         </div>
 
@@ -79,15 +77,11 @@ function ActiveBreathingOverlay({
         <div className="my-8 flex size-48 sm:size-56 items-center justify-center relative">
           <div
             className={`flex size-40 sm:size-48 items-center justify-center rounded-none border-4 border-border transition-all duration-1000 motion-reduce:transition-none ${
-              currentPhase.phase === "inhale"
-                ? "scale-110 bg-moodi-sky/80"
-                : currentPhase.phase === "holdIn"
-                  ? "scale-110 bg-moodi-butter/80"
-                  : currentPhase.phase === "exhale"
-                    ? "scale-90 bg-moodi-peach/80"
-                    : "scale-90 bg-moodi-pink/70"
-            }`}
-          >
+              currentPhase.phase === "inhale" ? "scale-110 bg-moodi-sky/80"
+              : currentPhase.phase === "holdIn" ? "scale-110 bg-moodi-butter/80"
+              : currentPhase.phase === "exhale" ? "scale-90 bg-moodi-peach/80"
+              : "scale-90 bg-moodi-pink/70"
+            }`}>
             <div className="space-y-1 select-none">
               <p className="font-pixelify text-2xl font-bold text-ink">
                 {currentPhase.label}
@@ -115,8 +109,7 @@ function ActiveBreathingOverlay({
         <button
           className="pixel-press pixel-shadow min-h-12 w-full border-2 border-border bg-moodi-sky px-6 font-semibold text-ink hover:bg-moodi-sky/90"
           onClick={handleClose}
-          type="button"
-        >
+          type="button">
           {siteCopy.practice.panicClose}
         </button>
       </div>

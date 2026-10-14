@@ -51,18 +51,20 @@ export function SessionRunner({
 }: SessionRunnerProps) {
   const router = useRouter();
   const [endsAtState, setEndsAtState] = useState<string | null>(endsAt);
-  const [answers, setAnswers] = useState<Record<string, string | null>>(initialAnswers);
+  const [answers, setAnswers] =
+    useState<Record<string, string | null>>(initialAnswers);
   const [immediateFeedbacks, setImmediateFeedbacks] = useState<
     Record<string, ImmediateFeedback>
   >({});
 
   // Find first unanswered question for resume, otherwise 0
-  const firstUnansweredIndex = useMemo(() => {
+  const initialUnansweredIndex = useMemo(() => {
     const idx = questions.findIndex((q) => !initialAnswers[q.id]);
     return idx >= 0 ? idx : 0;
   }, [questions, initialAnswers]);
 
-  const [currentIndex, setCurrentIndex] = useState<number>(firstUnansweredIndex);
+  const [currentIndex, setCurrentIndex] =
+    useState<number>(initialUnansweredIndex);
   const [isNavOpenMobile, setIsNavOpenMobile] = useState<boolean>(false);
   const [isPanicOpen, setIsPanicOpen] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
@@ -71,10 +73,10 @@ export function SessionRunner({
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const currentQuestion = questions[currentIndex];
-  const selectedOptionId = currentQuestion ? answers[currentQuestion.id] ?? null : null;
-  const currentImmediateFeedback = currentQuestion
-    ? immediateFeedbacks[currentQuestion.id]
-    : undefined;
+  const selectedOptionId =
+    currentQuestion ? (answers[currentQuestion.id] ?? null) : null;
+  const currentImmediateFeedback =
+    currentQuestion ? immediateFeedbacks[currentQuestion.id] : undefined;
 
   const answeredIndices = useMemo(() => {
     const set = new Set<number>();
@@ -85,6 +87,10 @@ export function SessionRunner({
   }, [questions, answers]);
 
   const unansweredCount = questions.length - answeredIndices.size;
+  const isAllAnswered = answeredIndices.size === questions.length;
+  const nextUnansweredIndex = questions.findIndex(
+    (_, idx) => !answeredIndices.has(idx),
+  );
 
   async function handleOptionSelect(optionId: string) {
     if (!currentQuestion) return;
@@ -96,7 +102,11 @@ export function SessionRunner({
       [currentQuestion.id]: optionId,
     }));
 
-    const result = await saveAnswerAction(sessionId, currentQuestion.id, optionId);
+    const result = await saveAnswerAction(
+      sessionId,
+      currentQuestion.id,
+      optionId,
+    );
 
     if (result.expired) {
       handleFinalize();
@@ -113,7 +123,16 @@ export function SessionRunner({
     }
   }
 
-  function handleFinalize() {
+  function handleFinalize(force = false) {
+    if (!force && answeredIndices.size < questions.length) {
+      const remaining = questions.length - answeredIndices.size;
+      setSaveError(
+        `Belum bisa menyelesaikan sesi. Masih ada ${remaining} soal yang belum dijawab.`,
+      );
+      setShowFinishConfirm(false);
+      return;
+    }
+
     startFinishTransition(async () => {
       const res = await finishSessionAction(sessionId);
       if (res.success) {
@@ -126,7 +145,7 @@ export function SessionRunner({
 
   function handleTimerExpiry() {
     if (mode === "full_simulation") {
-      handleFinalize();
+      handleFinalize(true);
     } else if (mode === "timed") {
       setShowSoftTimerEnd(true);
     }
@@ -156,8 +175,7 @@ export function SessionRunner({
         <div className="flex items-center gap-3 min-w-0">
           <Link
             className="pixel-press inline-flex items-center gap-1.5 border border-border bg-background px-3 py-1 text-xs font-semibold hover:bg-muted"
-            href="/dashboard"
-          >
+            href="/dashboard">
             ← {siteCopy.practice.leaveForNow}
           </Link>
           <div className="hidden sm:block min-w-0">
@@ -170,36 +188,38 @@ export function SessionRunner({
         {/* Center Progress & Timer */}
         <div className="flex items-center gap-3">
           <div className="text-xs font-semibold sm:text-sm">
-            {siteCopy.practice.questionNumber} {currentIndex + 1} / {questions.length}
+            {siteCopy.practice.questionNumber} {currentIndex + 1} /{" "}
+            {questions.length}
           </div>
+          <div className="hidden lg:block">
+            <SessionTimer
+              endsAt={endsAtState}
+              isPaused={isPanicOpen}
+              onExpiry={handleTimerExpiry}
+              serverNow={serverNow}
+            />
+          </div>
+        </div>
+
+        {/* Right Nav toggle & Panic for Mobile */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            aria-label={siteCopy.practice.questionNavigator}
+            className="pixel-press flex items-center gap-1 border border-border px-3 py-1 text-xs font-semibold"
+            onClick={() => setIsNavOpenMobile(true)}
+            type="button">
+            <span>Daftar Soal</span>
+            <span className="font-mono">
+              ({answeredIndices.size}/{questions.length})
+            </span>
+          </button>
+
           <SessionTimer
             endsAt={endsAtState}
             isPaused={isPanicOpen}
             onExpiry={handleTimerExpiry}
             serverNow={serverNow}
           />
-        </div>
-
-        {/* Right Nav toggle & Panic for Mobile */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <button
-            aria-label={siteCopy.practice.panicButton}
-            className="pixel-press flex items-center gap-1 border-2 border-border bg-moodi-peach px-2.5 py-1 text-xs font-bold text-ink"
-            onClick={() => setIsPanicOpen(true)}
-            type="button"
-          >
-            <span aria-hidden="true">🌿</span>
-            <span>{siteCopy.practice.panicButton}</span>
-          </button>
-          <button
-            aria-label={siteCopy.practice.questionNavigator}
-            className="pixel-press flex items-center gap-1 border border-border px-3 py-1 text-xs font-semibold"
-            onClick={() => setIsNavOpenMobile(true)}
-            type="button"
-          >
-            <span>Daftar Soal</span>
-            <span className="font-mono">({answeredIndices.size}/{questions.length})</span>
-          </button>
         </div>
       </header>
 
@@ -246,22 +266,20 @@ export function SessionRunner({
                   <button
                     aria-checked={isSelected}
                     className={`pixel-press relative flex w-full min-h-14 items-center gap-4 border-2 border-border p-4 text-left transition-all ${
-                      isSelected
-                        ? "bg-moodi-sky text-ink shadow-[3px_3px_0_var(--border)] ring-2 ring-primary"
-                        : "bg-card text-foreground hover:bg-muted"
+                      isSelected ?
+                        "bg-moodi-sky text-ink shadow-[3px_3px_0_var(--border)] ring-2 ring-primary"
+                      : "bg-card text-foreground hover:bg-muted"
                     }`}
                     key={option.id}
                     onClick={() => handleOptionSelect(option.id)}
                     role="radio"
-                    type="button"
-                  >
+                    type="button">
                     <span
                       className={`flex size-8 shrink-0 items-center justify-center border-2 border-border font-pixelify text-sm font-bold ${
-                        isSelected
-                          ? "bg-foreground text-background"
-                          : "bg-muted text-foreground"
-                      }`}
-                    >
+                        isSelected ?
+                          "bg-foreground text-background"
+                        : "bg-muted text-foreground"
+                      }`}>
                       {option.label}
                     </span>
                     <div className="min-w-0 flex-1 text-sm sm:text-base leading-snug">
@@ -277,24 +295,27 @@ export function SessionRunner({
           {mode === "relaxed" && currentImmediateFeedback && (
             <div
               className={`border-2 border-border p-5 ${
-                currentImmediateFeedback.isCorrect
-                  ? "bg-moodi-sky/30 text-ink"
-                  : "bg-moodi-butter/40 text-ink"
-              }`}
-            >
+                currentImmediateFeedback.isCorrect ?
+                  "bg-moodi-sky/30 text-ink"
+                : "bg-moodi-butter/40 text-ink"
+              }`}>
               <div className="flex items-center gap-2 font-bold text-sm">
                 <span>{currentImmediateFeedback.isCorrect ? "✓" : "!"}</span>
                 <span>
-                  {currentImmediateFeedback.isCorrect
-                    ? siteCopy.practice.immediateCorrect
-                    : siteCopy.practice.immediateWrong}
+                  {currentImmediateFeedback.isCorrect ?
+                    siteCopy.practice.immediateCorrect
+                  : siteCopy.practice.immediateWrong}
                 </span>
               </div>
               {currentImmediateFeedback.explanation && (
                 <div className="mt-3 border-t border-border/30 pt-3 text-sm">
-                  <span className="font-semibold">{siteCopy.practice.explanationTitle}:</span>
+                  <span className="font-semibold">
+                    {siteCopy.practice.explanationTitle}:
+                  </span>
                   <div className="mt-1">
-                    <RichContent content={currentImmediateFeedback.explanation} />
+                    <RichContent
+                      content={currentImmediateFeedback.explanation}
+                    />
                   </div>
                 </div>
               )}
@@ -302,7 +323,7 @@ export function SessionRunner({
           )}
         </main>
 
-        {/* Question Navigator (Single instance: Desktop sidebar & Mobile Drawer, with integrated Napas dulu) */}
+        {/* Question Navigator (Single instance: Desktop sidebar & Mobile Drawer, with integrated Nafas dulu) */}
         <QuestionNavigator
           answeredIndices={answeredIndices}
           currentIndex={currentIndex}
@@ -321,26 +342,50 @@ export function SessionRunner({
           className="pixel-press inline-flex min-h-10 items-center border-2 border-border px-4 text-xs sm:text-sm font-semibold hover:bg-muted disabled:opacity-40"
           disabled={currentIndex === 0}
           onClick={() => setCurrentIndex((idx) => Math.max(0, idx - 1))}
-          type="button"
-        >
+          type="button">
           ← {siteCopy.practice.previousQuestion}
         </button>
 
         <div className="flex items-center gap-3">
+          {!isAllAnswered && (
+            <span className="hidden sm:inline-flex items-center gap-1.5 border border-border bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+              <span>{answeredIndices.size}/{questions.length} terjawab</span>
+              <span className="text-[10px]">({unansweredCount} belum)</span>
+            </span>
+          )}
+
           {isLastQuestion ? (
             <button
-              className="pixel-press pixel-shadow inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky px-5 text-xs sm:text-sm font-bold text-ink hover:bg-moodi-sky/90"
-              onClick={() => setShowFinishConfirm(true)}
-              type="button"
-            >
-              {siteCopy.practice.finish} ✓
+              className={`inline-flex min-h-11 items-center border-2 border-border px-5 text-xs sm:text-sm font-bold transition-all ${
+                isAllAnswered
+                  ? "pixel-press pixel-shadow bg-moodi-sky text-ink hover:bg-moodi-sky/90"
+                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60"
+              }`}
+              disabled={!isAllAnswered}
+              onClick={() => isAllAnswered && setShowFinishConfirm(true)}
+              title={
+                isAllAnswered
+                  ? "Selesaikan sesi sekarang"
+                  : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
+              }
+              type="button">
+              {isAllAnswered ? `${siteCopy.practice.finish} ✓` : `Belum Lengkap (${answeredIndices.size}/${questions.length})`}
             </button>
           ) : (
             <button
-              className="pixel-press inline-flex min-h-10 items-center border-2 border-border bg-background px-4 text-xs sm:text-sm font-semibold hover:bg-muted"
-              onClick={() => setShowFinishConfirm(true)}
-              type="button"
-            >
+              className={`inline-flex min-h-10 items-center border-2 border-border px-4 text-xs sm:text-sm font-semibold transition-all ${
+                isAllAnswered
+                  ? "pixel-press bg-background text-foreground hover:bg-muted"
+                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60"
+              }`}
+              disabled={!isAllAnswered}
+              onClick={() => isAllAnswered && setShowFinishConfirm(true)}
+              title={
+                isAllAnswered
+                  ? "Selesaikan sesi sekarang"
+                  : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
+              }
+              type="button">
               {siteCopy.practice.finish}
             </button>
           )}
@@ -349,10 +394,11 @@ export function SessionRunner({
             <button
               className="pixel-press pixel-shadow inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky px-5 text-xs sm:text-sm font-bold text-ink hover:bg-moodi-sky/90"
               onClick={() =>
-                setCurrentIndex((idx) => Math.min(questions.length - 1, idx + 1))
+                setCurrentIndex((idx) =>
+                  Math.min(questions.length - 1, idx + 1),
+                )
               }
-              type="button"
-            >
+              type="button">
               {siteCopy.practice.nextQuestion} →
             </button>
           )}
@@ -372,40 +418,59 @@ export function SessionRunner({
           aria-labelledby="confirm-finish-title"
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
-          role="dialog"
-        >
+          role="dialog">
           <div className="pixel-shadow w-full max-w-md border-2 border-border bg-card p-6 space-y-4">
             <h3
               className="font-pixelify text-xl font-bold text-foreground"
-              id="confirm-finish-title"
-            >
-              {siteCopy.practice.finishConfirmTitle}
+              id="confirm-finish-title">
+              {isAllAnswered
+                ? siteCopy.practice.finishConfirmTitle
+                : "Belum Bisa Menyelesaikan"}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {unansweredCount > 0
-                ? siteCopy.practice.finishConfirmWithUnanswered.replace(
-                    "{count}",
-                    String(unansweredCount),
-                  )
-                : siteCopy.practice.finishConfirmAllAnswered}
+              {isAllAnswered
+                ? siteCopy.practice.finishConfirmAllAnswered
+                : `Masih ada ${unansweredCount} soal yang belum dijawab. Seluruh soal harus dijawab sebelum sesi dapat diselesaikan.`}
             </p>
             <div className="flex gap-3 pt-2">
-              <button
-                className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink disabled:opacity-60"
-                disabled={isFinishing}
-                onClick={handleFinalize}
-                type="button"
-              >
-                {isFinishing ? "Menyelesaikan..." : siteCopy.practice.finishNow}
-              </button>
-              <button
-                className="pixel-press min-h-12 border-2 border-border px-4 font-semibold hover:bg-muted"
-                disabled={isFinishing}
-                onClick={() => setShowFinishConfirm(false)}
-                type="button"
-              >
-                {siteCopy.practice.cancel}
-              </button>
+              {isAllAnswered ? (
+                <>
+                  <button
+                    className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink disabled:opacity-60"
+                    disabled={isFinishing}
+                    onClick={() => handleFinalize()}
+                    type="button">
+                    {isFinishing ? "Menyelesaikan..." : siteCopy.practice.finishNow}
+                  </button>
+                  <button
+                    className="pixel-press min-h-12 border-2 border-border px-4 font-semibold hover:bg-muted"
+                    disabled={isFinishing}
+                    onClick={() => setShowFinishConfirm(false)}
+                    type="button">
+                    {siteCopy.practice.cancel}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink"
+                    onClick={() => {
+                      setShowFinishConfirm(false);
+                      if (nextUnansweredIndex !== -1) {
+                        setCurrentIndex(nextUnansweredIndex);
+                      }
+                    }}
+                    type="button">
+                    Lanjut Jawab Soal Belum Terisi →
+                  </button>
+                  <button
+                    className="pixel-press min-h-12 border-2 border-border px-4 font-semibold hover:bg-muted"
+                    onClick={() => setShowFinishConfirm(false)}
+                    type="button">
+                    Tutup
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -417,32 +482,43 @@ export function SessionRunner({
           aria-labelledby="soft-timer-title"
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
-          role="dialog"
-        >
+          role="dialog">
           <div className="pixel-shadow w-full max-w-md border-2 border-border bg-card p-6 space-y-4">
             <span className="inline-block border border-border bg-moodi-butter px-2 py-0.5 text-xs font-semibold text-ink">
               Waktu Habis
             </span>
             <h3
               className="font-pixelify text-xl font-bold text-foreground"
-              id="soft-timer-title"
-            >
+              id="soft-timer-title">
               {siteCopy.practice.softTimerEnd}
             </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {!isAllAnswered
+                ? `Waktu batas telah habis, tetapi masih ada ${unansweredCount} soal yang belum dijawab. Silakan lengkapi sisa soal terlebih dahulu untuk menyelesaikan sesi.`
+                : "Semua soal telah terjawab. Kamu dapat langsung menyelesaikan sesi untuk melihat hasil dan pembahasan."}
+            </p>
             <div className="flex gap-3 pt-2">
               <button
                 className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink"
-                onClick={() => setShowSoftTimerEnd(false)}
-                type="button"
-              >
-                {siteCopy.practice.continuePractice}
+                onClick={() => {
+                  setShowSoftTimerEnd(false);
+                  if (!isAllAnswered && nextUnansweredIndex !== -1) {
+                    setCurrentIndex(nextUnansweredIndex);
+                  }
+                }}
+                type="button">
+                {isAllAnswered ? siteCopy.practice.continuePractice : "Lengkapi Sisa Soal →"}
               </button>
               <button
-                className="pixel-press min-h-12 border-2 border-border bg-background px-4 font-semibold hover:bg-muted"
-                onClick={handleFinalize}
-                type="button"
-              >
-                {siteCopy.practice.finish}
+                className={`min-h-12 border-2 border-border px-4 font-semibold transition-all ${
+                  isAllAnswered
+                    ? "pixel-press bg-background hover:bg-muted text-foreground"
+                    : "cursor-not-allowed bg-muted text-muted-foreground opacity-50"
+                }`}
+                disabled={!isAllAnswered || isFinishing}
+                onClick={() => isAllAnswered && handleFinalize()}
+                type="button">
+                {isAllAnswered ? siteCopy.practice.finish : `Selesai (${answeredIndices.size}/${questions.length})`}
               </button>
             </div>
           </div>

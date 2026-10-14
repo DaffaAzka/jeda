@@ -29,8 +29,7 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
       {/* Top Gentle Summary Card */}
       <section
         aria-labelledby="review-summary-title"
-        className="pixel-shadow border-2 border-border bg-card p-6 sm:p-8 space-y-4"
-      >
+        className="pixel-shadow border-2 border-border bg-card p-6 sm:p-8 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -38,14 +37,13 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
             </span>
             <h1
               className="font-pixelify text-2xl sm:text-3xl font-bold text-foreground"
-              id="review-summary-title"
-            >
+              id="review-summary-title">
               {scopeTitle}
             </h1>
           </div>
           <div className="text-right">
             <span className="inline-block border border-border bg-muted px-3 py-1 text-xs font-semibold">
-              Mode: {session.mode}
+              Mode: {session.mode === "full_simulation" ? "Simulasi Penuh" : "Latihan Bebas"}
             </span>
           </div>
         </div>
@@ -59,23 +57,23 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
                 .replace("{total}", String(totalQuestions))}
             </p>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-              {unansweredCount > 0
-                ? `${unansweredCount} soal dilewati atau belum sempat dijawab.`
-                : "Semua soal telah kamu coba selesaikan."}
+              {unansweredCount > 0 ?
+                `${unansweredCount} soal dilewati atau belum sempat dijawab.`
+              : "Semua soal telah kamu coba selesaikan."}
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Link
               className="pixel-press pixel-shadow inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky px-5 text-xs sm:text-sm font-semibold text-ink"
-              href={session.topic ? "/dashboard/study" : "/dashboard/mock-exam"}
-            >
+              href={
+                session.topic ? "/dashboard/study" : "/dashboard/mock-exam"
+              }>
               {session.topic ? siteCopy.practice.retakeSet : "Latihan Lagi"}
             </Link>
             <Link
               className="pixel-press inline-flex min-h-11 items-center border-2 border-border bg-background px-5 text-xs sm:text-sm font-semibold hover:bg-muted"
-              href="/dashboard"
-            >
+              href="/dashboard">
               {siteCopy.practice.backToDashboard}
             </Link>
           </div>
@@ -85,33 +83,32 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
         <div className="flex gap-2 border-t border-border pt-4 text-xs font-semibold">
           <button
             className={`pixel-press border border-border px-3 py-1.5 ${
-              filter === "all" ? "bg-foreground text-background font-bold" : "bg-muted hover:bg-card"
+              filter === "all" ?
+                "bg-foreground text-background font-bold"
+              : "bg-muted hover:bg-card"
             }`}
             onClick={() => setFilter("all")}
-            type="button"
-          >
+            type="button">
             {siteCopy.practice.filterAll} ({totalQuestions})
           </button>
           <button
             className={`pixel-press border border-border px-3 py-1.5 ${
-              filter === "wrong"
-                ? "bg-foreground text-background font-bold"
-                : "bg-muted hover:bg-card"
+              filter === "wrong" ?
+                "bg-foreground text-background font-bold"
+              : "bg-muted hover:bg-card"
             }`}
             onClick={() => setFilter("wrong")}
-            type="button"
-          >
+            type="button">
             {siteCopy.practice.filterWrong} ({totalQuestions - correctCount})
           </button>
           <button
             className={`pixel-press border border-border px-3 py-1.5 ${
-              filter === "correct"
-                ? "bg-foreground text-background font-bold"
-                : "bg-muted hover:bg-card"
+              filter === "correct" ?
+                "bg-foreground text-background font-bold"
+              : "bg-muted hover:bg-card"
             }`}
             onClick={() => setFilter("correct")}
-            type="button"
-          >
+            type="button">
             {siteCopy.practice.filterCorrect} ({correctCount})
           </button>
         </div>
@@ -128,30 +125,28 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
           return (
             <article
               className="pixel-shadow space-y-5 border-2 border-border bg-card p-6 sm:p-8"
-              key={ans.id}
-            >
+              key={ans.id}>
               {/* Question Header & Status Badge */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3">
                 <span className="font-pixelify text-lg font-bold text-foreground">
                   {siteCopy.practice.questionNumber} {ans.sortOrder + 1}
                 </span>
 
-                {ans.isCorrect ? (
+                {ans.isCorrect ?
                   <span className="inline-flex items-center gap-1.5 border border-border bg-moodi-sky/30 px-3 py-1 text-xs font-bold text-ink">
                     <span>✓</span>
                     <span>{siteCopy.practice.labelCorrect}</span>
                   </span>
-                ) : ans.selectedOptionId ? (
+                : ans.selectedOptionId ?
                   <span className="inline-flex items-center gap-1.5 border border-border bg-moodi-butter/50 px-3 py-1 text-xs font-bold text-ink">
                     <span>⚠</span>
                     <span>{siteCopy.practice.labelCheckAgain}</span>
                   </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                : <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
                     <span>-</span>
                     <span>{siteCopy.practice.labelUnanswered}</span>
                   </span>
-                )}
+                }
               </div>
 
               {/* Stem */}
@@ -176,7 +171,7 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {siteCopy.practice.yourAnswer}:
                   </span>
-                  {selectedOption ? (
+                  {selectedOption ?
                     <div className="flex items-start gap-2 pt-1">
                       <span className="flex size-6 shrink-0 items-center justify-center border border-border bg-muted text-xs font-bold">
                         {selectedOption.label}
@@ -185,11 +180,10 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
                         <RichContent content={selectedOption.body} />
                       </div>
                     </div>
-                  ) : (
-                    <p className="text-sm italic text-muted-foreground pt-1">
+                  : <p className="text-sm italic text-muted-foreground pt-1">
                       {siteCopy.practice.labelUnanswered}
                     </p>
-                  )}
+                  }
                 </div>
 
                 <div className="border-2 border-border bg-moodi-sky/20 p-4 space-y-1">

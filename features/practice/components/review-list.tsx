@@ -119,7 +119,7 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
 
       {/* Questions Review List */}
       <div className="space-y-6">
-        {filteredAnswers.map((ans, idx) => {
+        {filteredAnswers.map((ans) => {
           const selectedOption = ans.question.options.find(
             (o) => o.id === ans.selectedOptionId,
           );
@@ -148,7 +148,7 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    <span>—</span>
+                    <span>-</span>
                     <span>{siteCopy.practice.labelUnanswered}</span>
                   </span>
                 )}

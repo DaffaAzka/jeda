@@ -5,7 +5,6 @@ import { isQuestionReady } from "@/lib/practice/question-ready";
 import { evaluateSessionAnswers } from "@/lib/practice/scoring";
 import { guessErrorTag } from "@/lib/rules/guess-error-tag";
 import { PRACTICE } from "@/config/practice";
-import { RULES } from "@/config/rules";
 
 describe("level-policy: getTimerPlan", () => {
   const baseSeconds = 1800; // 30 minutes
@@ -179,7 +178,7 @@ describe("question-ready: isQuestionReady", () => {
 
 describe("scoring: evaluateSessionAnswers", () => {
   it("evaluates answers and updates topic attempts only for answered questions", () => {
-    const { evaluatedAnswers, summary } = evaluateSessionAnswers([
+    const { summary } = evaluateSessionAnswers([
       {
         questionId: "q1",
         topicId: "top-1",

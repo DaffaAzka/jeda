@@ -18,25 +18,20 @@ const PHASES: Array<{ phase: BreathPhase; label: string; duration: number }> = [
   { phase: "holdOut", label: siteCopy.practice.breathingHoldOut, duration: 4 },
 ];
 
-export function BreathingOverlay({
-  isOpen,
+function ActiveBreathingOverlay({
   onClose,
-  isFullSimulation = false,
-}: BreathingOverlayProps) {
+  isFullSimulation,
+}: {
+  onClose: (pausedSeconds: number) => void;
+  isFullSimulation: boolean;
+}) {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [secondsInPhase, setSecondsInPhase] = useState(4);
-  const [totalSecondsOpen, setTotalSecondsOpen] = useState(0);
-  const startTimeRef = useRef<number>(Date.now());
+  const totalElapsedRef = useRef(0);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    startTimeRef.current = Date.now();
-    setPhaseIndex(0);
-    setSecondsInPhase(4);
-    setTotalSecondsOpen(0);
-
     const interval = setInterval(() => {
+      totalElapsedRef.current += 1;
       setSecondsInPhase((prev) => {
         if (prev <= 1) {
           setPhaseIndex((p) => (p + 1) % PHASES.length);
@@ -44,20 +39,15 @@ export function BreathingOverlay({
         }
         return prev - 1;
       });
-
-      setTotalSecondsOpen((sec) => sec + 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
-
-  if (!isOpen) return null;
+  }, []);
 
   const currentPhase = PHASES[phaseIndex]!;
 
   function handleClose() {
-    const elapsedSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
-    onClose(elapsedSeconds);
+    onClose(totalElapsedRef.current);
   }
 
   return (
@@ -87,7 +77,6 @@ export function BreathingOverlay({
 
         {/* Breathing Animation Orb / Container */}
         <div className="my-8 flex size-48 sm:size-56 items-center justify-center relative">
-          {/* Animated visual orb */}
           <div
             className={`flex size-40 sm:size-48 items-center justify-center rounded-none border-4 border-border transition-all duration-1000 motion-reduce:transition-none ${
               currentPhase.phase === "inhale"
@@ -132,5 +121,20 @@ export function BreathingOverlay({
         </button>
       </div>
     </div>
+  );
+}
+
+export function BreathingOverlay({
+  isOpen,
+  onClose,
+  isFullSimulation = false,
+}: BreathingOverlayProps) {
+  if (!isOpen) return null;
+
+  return (
+    <ActiveBreathingOverlay
+      isFullSimulation={isFullSimulation}
+      onClose={onClose}
+    />
   );
 }

@@ -1,5 +1,3 @@
-import "server-only";
-
 import type { ReactNode } from "react";
 import katex from "katex";
 
@@ -104,6 +102,23 @@ function renderNode(node: RichTextNode, key: string | number): ReactNode {
   return null;
 }
 
+function parseRichText(content: string): RichTextNode | null {
+  try {
+    const parsed: unknown = JSON.parse(content);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "type" in parsed &&
+      parsed.type === "doc"
+    ) {
+      return parsed as RichTextNode;
+    }
+  } catch {
+    // If not valid JSON, returns null
+  }
+  return null;
+}
+
 export function RichContent({
   content,
   className = "",
@@ -113,23 +128,13 @@ export function RichContent({
 }) {
   if (!content) return null;
 
-  try {
-    const parsed: unknown = JSON.parse(content);
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      "type" in parsed &&
-      parsed.type === "doc"
-    ) {
-      const doc = parsed as RichTextNode;
-      return (
-        <div className={`rich-text-content ${className}`}>
-          {doc.content?.map((node, idx) => renderNode(node, idx))}
-        </div>
-      );
-    }
-  } catch {
-    // If not valid JSON, render as plain text
+  const doc = parseRichText(content);
+  if (doc) {
+    return (
+      <div className={`rich-text-content ${className}`}>
+        {doc.content?.map((node, idx) => renderNode(node, idx))}
+      </div>
+    );
   }
 
   return <div className={`rich-text-content ${className}`}>{content}</div>;

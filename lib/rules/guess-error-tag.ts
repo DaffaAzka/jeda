@@ -1,4 +1,4 @@
-import type { ErrorCause } from "@/app/generated/prisma";
+import type { ErrorCause } from "@/app/generated/prisma/enums";
 import { RULES } from "@/config/rules";
 
 export interface GuessErrorTagInput {
@@ -8,6 +8,11 @@ export interface GuessErrorTagInput {
   secondsSpent?: number;
   timeLimitSeconds: number | null;
   averagePaceSeconds?: number;
+}
+
+export interface AutopsyThresholds {
+  lastWindowSeconds: number;
+  quickAnswerShare: number;
 }
 
 /**
@@ -20,7 +25,7 @@ export interface GuessErrorTagInput {
  */
 export function guessErrorTag(
   input: GuessErrorTagInput,
-  thresholds = RULES.autopsy,
+  thresholds: AutopsyThresholds = RULES.autopsy,
 ): ErrorCause | null {
   if (input.isCorrect) {
     return null;

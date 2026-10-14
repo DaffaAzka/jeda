@@ -1,4 +1,4 @@
-import type { TryoutMode } from "@/app/generated/prisma";
+import type { TryoutMode } from "@/app/generated/prisma/enums";
 import { PRACTICE } from "@/config/practice";
 
 export type ExposureLevel = TryoutMode | "loose" | "full";
@@ -38,6 +38,12 @@ export function getTimerPlan(
       return {
         limitSeconds: subtestLimitSeconds,
         onExpiry: "finish",
+        panicPausesTimer: false,
+      };
+    default:
+      return {
+        limitSeconds: null,
+        onExpiry: "none",
         panicPausesTimer: false,
       };
   }

@@ -180,11 +180,20 @@ export function SessionRunner({
           />
         </div>
 
-        {/* Right Nav toggle for Mobile */}
-        <div className="flex items-center gap-2">
+        {/* Right Nav toggle & Panic for Mobile */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            aria-label={siteCopy.practice.panicButton}
+            className="pixel-press flex items-center gap-1 border-2 border-border bg-moodi-peach px-2.5 py-1 text-xs font-bold text-ink"
+            onClick={() => setIsPanicOpen(true)}
+            type="button"
+          >
+            <span aria-hidden="true">🌿</span>
+            <span>{siteCopy.practice.panicButton}</span>
+          </button>
           <button
             aria-label={siteCopy.practice.questionNavigator}
-            className="pixel-press flex items-center gap-1 border border-border px-3 py-1 text-xs font-semibold lg:hidden"
+            className="pixel-press flex items-center gap-1 border border-border px-3 py-1 text-xs font-semibold"
             onClick={() => setIsNavOpenMobile(true)}
             type="button"
           >
@@ -293,25 +302,18 @@ export function SessionRunner({
           )}
         </main>
 
-        {/* Question Navigator (Desktop) */}
+        {/* Question Navigator (Single instance: Desktop sidebar & Mobile Drawer, with integrated Napas dulu) */}
         <QuestionNavigator
           answeredIndices={answeredIndices}
           currentIndex={currentIndex}
+          isFullSimulation={mode === "full_simulation"}
+          isOpenMobile={isNavOpenMobile}
+          onCloseMobile={() => setIsNavOpenMobile(false)}
+          onPanicClick={() => setIsPanicOpen(true)}
           onSelectIndex={(idx) => setCurrentIndex(idx)}
           totalQuestions={questions.length}
         />
       </div>
-
-      {/* Floating Panic Button (thumb zone) */}
-      <button
-        aria-label={siteCopy.practice.panicButton}
-        className="pixel-press pixel-shadow fixed bottom-20 right-4 z-40 flex min-h-12 items-center gap-2 border-2 border-border bg-moodi-peach px-4 py-2 font-bold text-ink shadow-[3px_3px_0_var(--border)] hover:bg-moodi-peach/90 sm:bottom-24 sm:right-8"
-        onClick={() => setIsPanicOpen(true)}
-        type="button"
-      >
-        <span aria-hidden="true" className="text-lg">🌿</span>
-        <span>{siteCopy.practice.panicButton}</span>
-      </button>
 
       {/* Bottom Sticky Action Bar */}
       <footer className="sticky bottom-0 z-30 flex min-h-16 items-center justify-between border-t-2 border-border bg-card px-4 sm:px-8">
@@ -356,16 +358,6 @@ export function SessionRunner({
           )}
         </div>
       </footer>
-
-      {/* Mobile Drawer Navigator */}
-      <QuestionNavigator
-        answeredIndices={answeredIndices}
-        currentIndex={currentIndex}
-        isOpenMobile={isNavOpenMobile}
-        onCloseMobile={() => setIsNavOpenMobile(false)}
-        onSelectIndex={(idx) => setCurrentIndex(idx)}
-        totalQuestions={questions.length}
-      />
 
       {/* Breathing Panic Overlay */}
       <BreathingOverlay

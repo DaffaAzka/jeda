@@ -9,6 +9,8 @@ interface QuestionNavigatorProps {
   onSelectIndex: (index: number) => void;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  onPanicClick?: () => void;
+  isFullSimulation?: boolean;
 }
 
 export function QuestionNavigator({
@@ -18,6 +20,8 @@ export function QuestionNavigator({
   onSelectIndex,
   isOpenMobile = false,
   onCloseMobile,
+  onPanicClick,
+  isFullSimulation = false,
 }: QuestionNavigatorProps) {
   const content = (
     <div className="space-y-4">
@@ -80,22 +84,44 @@ export function QuestionNavigator({
         </div>
         <div className="flex items-center gap-1.5">
           <span className="size-3 border-2 border-border bg-moodi-sky" />
-          <span>Sedang dibuka</span>
+          <span>Dibuka</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="size-3 border border-border bg-card" />
           <span>Belum</span>
         </div>
       </div>
+
+      {onPanicClick && (
+        <div className="border-t-2 border-border pt-4">
+          <button
+            aria-label={siteCopy.practice.panicButton}
+            className="pixel-press pixel-shadow flex w-full items-center justify-center gap-2 border-2 border-border bg-moodi-peach px-3 py-2.5 font-bold text-ink shadow-[2px_2px_0_var(--border)] hover:bg-moodi-peach/90"
+            onClick={() => {
+              onPanicClick();
+              onCloseMobile?.();
+            }}
+            type="button"
+          >
+            <span aria-hidden="true" className="text-base">🌿</span>
+            <span>{siteCopy.practice.panicButton}</span>
+          </button>
+          <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
+            {isFullSimulation
+              ? "Latihan napas 60s (waktu ujian tetap berjalan)"
+              : "Latihan napas 60s (timer otomatis dijeda)"}
+          </p>
+        </div>
+      )}
     </div>
   );
 
   return (
     <>
-      {/* Desktop view */}
+      {/* Desktop view: sticky sidebar beside question */}
       <aside
         aria-label={siteCopy.practice.questionNavigator}
-        className="hidden w-64 shrink-0 border-2 border-border bg-card p-4 lg:block"
+        className="sticky top-20 hidden w-64 shrink-0 border-2 border-border bg-card p-4 lg:block"
       >
         {content}
       </aside>
@@ -104,7 +130,7 @@ export function QuestionNavigator({
       {isOpenMobile && (
         <div
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 lg:hidden"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 lg:hidden backdrop-blur-xs"
           role="dialog"
         >
           <div className="pixel-shadow w-full max-w-md border-2 border-border bg-card p-5">

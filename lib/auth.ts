@@ -9,7 +9,7 @@ if (!secret) {
 }
 
 export const auth = betterAuth({
-  appName: "Jeda",
+  appName: "MOODI",
   baseURL: process.env.BETTER_AUTH_URL,
   secret,
   database: prismaAdapter(prisma, {

@@ -154,6 +154,7 @@ model Topic {
   questions  Question[]
   topicStats TopicStat[]
   planTasks  PlanTask[]
+  tryoutSessions TryoutSession[]
 
   @@unique([subtestId, name])
   @@map("topics")
@@ -196,18 +197,22 @@ model TryoutSession {
   userId           String          @map("user_id") @db.Uuid
   planTaskId       String?         @map("plan_task_id") @db.Uuid
   subtestId        String?         @map("subtest_id") @db.Uuid
+  topicId          String?         @map("topic_id") @db.Uuid
   mode             TryoutMode
   timeLimitSeconds Int?            @map("time_limit_seconds")
   startedAt        DateTime        @default(now()) @map("started_at") @db.Timestamptz(6)
+  endsAt           DateTime?       @map("ends_at") @db.Timestamptz(6)
   finishedAt       DateTime?       @map("finished_at") @db.Timestamptz(6)
   score            Decimal?        @db.Decimal(5, 2)
   user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   planTask         PlanTask?       @relation(fields: [planTaskId], references: [id], onDelete: SetNull)
   subtest          Subtest?        @relation(fields: [subtestId], references: [id], onDelete: SetNull)
+  topic            Topic?          @relation(fields: [topicId], references: [id], onDelete: SetNull)
   answers          SessionAnswer[]
   calmSessions     CalmSession[]
 
   @@index([userId, startedAt])
+  @@index([topicId])
   @@map("tryout_sessions")
 }
 
@@ -216,6 +221,7 @@ model SessionAnswer {
   sessionId        String          @map("session_id") @db.Uuid
   questionId       String          @map("question_id") @db.Uuid
   selectedOptionId String?         @map("selected_option_id") @db.Uuid
+  sortOrder        Int             @default(0) @map("sort_order") @db.SmallInt
   isCorrect        Boolean         @default(false) @map("is_correct")
   secondsSpent     Int             @default(0) @map("seconds_spent")
   elapsedSeconds   Int             @default(0) @map("elapsed_seconds")
@@ -227,6 +233,7 @@ model SessionAnswer {
   selectedOption   QuestionOption? @relation("SelectedOption", fields: [selectedOptionId], references: [id], onDelete: SetNull)
 
   @@unique([sessionId, questionId])
+  @@index([sessionId, sortOrder])
   @@index([questionId])
   @@map("session_answers")
 }

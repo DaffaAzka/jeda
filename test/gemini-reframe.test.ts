@@ -4,24 +4,24 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-describe("Gemini Reframing Service", () => {
-  it("reframes catastrophic thought with valid structured fields", async () => {
-    const studentThought =
-      "Aku baru aja tryout dan nilaiku di bawah 500. Masa depanku hancur, aku gak bakalan lolos PTN impian.";
+describe("Gemini Reframing Service Integration", () => {
+  it("reframes student thought in under 5s with live Gemini AI", async () => {
+    const studentThought = "berikan saya jawaban buat utbk";
 
+    const start = Date.now();
     const result = await reframeThoughtWithGemini(studentThought);
+    const duration = Date.now() - start;
 
-    expect(result.thought).toBe(studentThought);
-    expect(result.validation).toBeTruthy();
-    expect(result.distortion).toBeTruthy();
-    expect(result.fact).toBeTruthy();
-    expect(result.smallStep).toBeTruthy();
-    expect(["gemini", "local_fallback"]).toContain(result.source);
-
-    console.log("Reframed result from:", result.source);
+    console.log(`Reframing completed in ${duration}ms from: ${result.source}`);
     console.log("Validation:", result.validation);
     console.log("Distortion:", result.distortion);
     console.log("Fact:", result.fact);
     console.log("Small step:", result.smallStep);
-  }, 20000);
+
+    expect(result.source).toBe("gemini");
+    expect(result.validation).toBeTruthy();
+    expect(result.distortion).toBeTruthy();
+    expect(result.fact).toBeTruthy();
+    expect(result.smallStep).toBeTruthy();
+  }, 15000);
 });

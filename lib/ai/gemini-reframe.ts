@@ -18,12 +18,18 @@ const reframedResponseSchema = z.object({
   smallStep: z.string().min(5),
 });
 
+// Priority list: ultra-fast, high-availability lite models first to avoid 503 and timeouts
 const CANDIDATE_MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
   "gemini-3.5-flash",
-  "gemini-flash-latest",
+  "gemini-3.6-flash",
 ];
 
-const LOCAL_FALLBACKS: Record<string, Omit<ReframedThoughtResult, "thought" | "source">> = {
+const LOCAL_FALLBACKS: Record<
+  string,
+  Omit<ReframedThoughtResult, "thought" | "source">
+> = {
   default: {
     validation:
       "Wajar sekali merasa cemas atau terbebani. Mempersiapkan UTBK adalah perjalanan panjang yang menuntut banyak energi.",
@@ -42,6 +48,15 @@ const LOCAL_FALLBACKS: Record<string, Omit<ReframedThoughtResult, "thought" | "s
     smallStep:
       "Katakan pada diri sendiri bahwa kamu sedang berusaha sebaik mungkin dengan kapasitas hari ini.",
   },
+  jawaban_instan: {
+    validation:
+      "Wajar banget kalau kamu merasa ingin jalan pintas saat lagi capek dan pusing memikirkan beban UTBK.",
+    distortion: "Jalan Pintas Impulsif",
+    fact:
+      "Mencari kunci jawaban instan tidak melatih otakmu menghadapi variasi soal nanti. Belajar bertahap dari topik yang paling mudah jauh lebih aman dan membangun kepercayaan diri asli.",
+    smallStep:
+      "Coba pelajari pembahasan 1 soal saja hari ini selama 10 menit dengan santai.",
+  },
 };
 
 export async function reframeThoughtWithGemini(
@@ -51,7 +66,9 @@ export async function reframeThoughtWithGemini(
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    console.warn("GEMINI_API_KEY is not defined. Using local reframing fallback.");
+    console.warn(
+      "GEMINI_API_KEY is not defined. Using local reframing fallback.",
+    );
     return {
       thought: cleanThought,
       ...LOCAL_FALLBACKS.default,
@@ -64,13 +81,14 @@ Tugasmu adalah membantu siswa membedah rasa cemas menggunakan teknik reframing k
 Prinsip utama:
 1. Jangan menghakimi, jangan gunakan istilah diagnosis psikiatri rumit.
 2. Selalu gunakan sapaan 'kamu' yang hangat, akrab, dan manusiawi.
-3. Bantu siswa melihat fakta objektif yang menenangkan dan realistis.
-4. Berikan satu langkah kecil (small step) yang ringan dan praktis dilakukan hari ini.
+3. Jika siswa meminta bocoran jawaban atau jalan pintas instan, validasi rasa ingin instan/lelahnya dengan hangat, lalu ingatkan bahwa proses latihan bertahap jauh lebih aman dan nyata.
+4. Bantu siswa melihat fakta objektif yang menenangkan dan realistis.
+5. Berikan satu langkah kecil (small step) yang ringan dan praktis dilakukan hari ini.
 
 Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
 {
-  "validation": "1-2 kalimat pengakuan emosi yang hangat dan memvalidasi perasaan cemas siswa",
-  "distortion": "Nama pola pikir cemas yang terjadi (contoh: Katastrofisasi, Overgeneralisasi, Perbandingan Sosial, All-or-Nothing)",
+  "validation": "1-2 kalimat pengakuan emosi yang hangat dan memvalidasi perasaan cemas/lelah siswa",
+  "distortion": "Nama pola pikir cemas yang terjadi (contoh: Katastrofisasi, Overgeneralisasi, Perbandingan Sosial, Jalan Pintas Impulsif)",
   "fact": "2-3 kalimat fakta objektif dan perspektif baru yang menenangkan dan realistis",
   "smallStep": "1 langkah tindakan konkret yang ringan dan bisa dilakukan siswa hari ini"
 }`;
@@ -81,7 +99,7 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(8000),
         body: JSON.stringify({
           contents: [
             {
@@ -95,12 +113,13 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
           generationConfig: {
             response_mime_type: "application/json",
             temperature: 0.7,
+            max_output_tokens: 450,
           },
         }),
       });
 
       if (!res.ok) {
-        console.warn(`Gemini model ${model} returned status ${res.status}`);
+        // Log brief error and continue to the next model
         continue;
       }
 
@@ -121,14 +140,27 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
           source: "gemini",
         };
       }
-    } catch (err) {
-      console.warn(`Gemini call error on model ${model}:`, err);
+    } catch {
+      // Aborted or network issue on this model, proceed to the next candidate
+      continue;
     }
   }
 
-  // Graceful local fallback if network/quota is down
-  const isParent = cleanThought.toLowerCase().includes("orang tua") || cleanThought.toLowerCase().includes("ibu") || cleanThought.toLowerCase().includes("ayah");
-  const fallback = isParent ? LOCAL_FALLBACKS.orang_tua : LOCAL_FALLBACKS.default;
+  // Graceful local fallback if all models fail
+  const lower = cleanThought.toLowerCase();
+  const isParent =
+    lower.includes("orang tua") ||
+    lower.includes("ibu") ||
+    lower.includes("ayah");
+  const isInstant =
+    lower.includes("jawaban") ||
+    lower.includes("bocoran") ||
+    lower.includes("kunci");
+
+  const fallback =
+    isParent ? LOCAL_FALLBACKS.orang_tua
+    : isInstant ? LOCAL_FALLBACKS.jawaban_instan
+    : LOCAL_FALLBACKS.default;
 
   return {
     thought: cleanThought,

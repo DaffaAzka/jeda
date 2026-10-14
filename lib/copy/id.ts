@@ -19,81 +19,73 @@ export const siteCopy = {
     },
   },
   landing: {
-    eyebrow: "Teman persiapan UTBK",
+    eyebrow: "Persiapan UTBK Berbasis Ritme",
     headlineFirst: "Belajar UTBK,",
     headlineSecond: "tanpa lupa bernafas.",
     intro:
-      "MOODI dirancang untuk membantu kamu belajar dengan ritme yang lebih manusiawi, sambil tetap memberi ruang untuk beristirahat.",
-    status: "MOODI sedang disiapkan. Fitur belajar belum tersedia.",
-    primaryAction: "Buat akun",
-    secondaryAction: "Lihat rencana MOODI",
-    illustrationLabel: "",
-    bandLabel: "Yang sedang disiapkan",
+      "MOODI menyesuaikan porsi belajar dengan energimu hari ini. Kurangi beban cemas, bangun pemahaman bertahap, dan kenali pola kesalahanmu.",
+    status: "Ruang belajar adaptif yang siap menemani persiapanmu.",
+    primaryAction: "Mulai belajar",
+    secondaryAction: "Pelajari alur",
+    illustrationLabel: "Ilustrasi meja belajar pixel art MOODI",
+    bandLabel: "Fokus MOODI",
     concepts: [
-      "Check-in",
+      "Check-in harian",
       "Rencana adaptif",
-      "Tryout",
+      "Latihan & tryout",
       "Error autopsy",
       "Ruang tenang",
     ],
     aboutLabel: "Tentang MOODI",
     aboutTitle: "Persiapan yang memberi ruang untuk jeda.",
     aboutDescription:
-      "MOODI menggabungkan persiapan UTBK dengan perhatian pada kondisi harian. Fitur-fitur ini masih dalam tahap pengembangan dan belum bisa digunakan.",
-    stepsTitle: "Bagaimana MOODI dirancang?",
+      "MOODI menggabungkan latihan soal UTBK dengan penyesuaian ritme harianmu. Dari check-in kondisi harian hingga analisis kesalahan yang objektif.",
+    stepsTitle: "Bagaimana cara kerjanya?",
     stepsIntro:
-      "Ini adalah alur yang sedang dirancang, bukan fitur yang sudah tersedia.",
+      "Tiga langkah sederhana setiap hari:",
     steps: [
       {
-        title: "Check-in",
-        description: "Ceritakan singkat bagaimana harimu.",
+        title: "1. Check-in 30 detik",
+        description: "Catat tidur, energi, mood, dan tingkat stresmu pagi ini.",
       },
       {
-        title: "Kenali ritme",
-        description: "Pahami kondisi belajar hari ini.",
+        title: "2. Terima rencana adaptif",
+        description: "Dapatkan rekomendasi mode belajar (Gas Pol, Seimbang, atau Pemulihan).",
       },
       {
-        title: "Susun rencana",
-        description: "Pilih langkah kecil yang terasa pas.",
-      },
-      {
-        title: "Latihan bertahap",
-        description: "Belajar dan berlatih tanpa perlu terburu-buru.",
-      },
-      {
-        title: "Lihat pola",
-        description: "Kenali kembali proses dan kesalahanmu.",
+        title: "3. Latihan & kenali kesalahan",
+        description: "Kerjakan soal bertahap dan identifikasi penyebab salah tanpa rasa bersalah.",
       },
     ],
-    featuresLabel: "Arah pengembangan",
+    featuresLabel: "Fitur Utama",
     featuresTitle: "Dibangun untuk proses yang lebih ramah.",
     features: [
       {
-        title: "Check-in harian",
+        title: "Check-in Harian",
         description:
-          "Check-in singkat tentang tidur, energi, suasana hati, dan tekanan yang kamu rasakan.",
+          "Kenali kapasitasmu hari ini agar target belajarmu realistis dan tidak memicu burnout.",
         icon: "sun",
       },
       {
-        title: "Error autopsy",
+        title: "Error Autopsy",
         description:
-          "Rencana untuk membantu mengenali apakah kesalahan muncul karena materi, waktu, atau hal lain.",
+          "Bedah tiap jawaban salah: apakah karena konsep belum paham, waktu mepet, atau kurang teliti.",
         icon: "grid",
       },
       {
-        title: "Ruang tenang",
+        title: "Ruang Tenang",
         description:
-          "Ruang untuk berhenti sejenak dan mencoba latihan Nafas singkat saat dibutuhkan.",
+          "Latihan pernapasan kotak, teknik grounding 5-4-3-2-1, dan reframing pikiran saat cemas datang.",
         icon: "breath",
       },
     ],
-    closingTitle: "Mulai dari satu langkah kecil.",
+    closingTitle: "Mulai dari satu langkah kecil hari ini.",
     closingDescription:
-      "Buat akun untuk melihat dashboard awal MOODI. Fitur belajar akan hadir setelah siap.",
+      "Buat akun dan rasakan persiapan UTBK yang menghargai kapasitas mentalmu.",
     footerTagline: "Belajar dengan jeda, bertumbuh dengan ritme sendiri.",
-    sdg: "MOODI mendukung perhatian pada kesejahteraan dan akses pendidikan.",
+    sdg: "MOODI mendukung kesehatan mental yang baik dan akses pendidikan berkualitas.",
     disclaimer:
-      "MOODI mendukung kesejahteraanmu, bukan pengganti psikolog atau konselor.",
+      "MOODI adalah pendukung proses belajarmu, bukan pengganti layanan medis profesional atau psikolog klinis.",
     privacy: "Privasi",
   },
   auth: {

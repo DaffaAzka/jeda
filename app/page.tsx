@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ArrowRightIcon } from "@/components/icons";
 import { siteCopy } from "@/lib/copy/id";
 
 function PixelStudyScene() {
@@ -119,7 +120,7 @@ export default function Home() {
 
   return (
     <>
-      <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b-2 border-border bg-background/95 backdrop-blur">
         <nav
           aria-label={siteCopy.brand}
           className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6"
@@ -130,21 +131,21 @@ export default function Home() {
           >
             {siteCopy.brand}
           </Link>
-          <div className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <a className="hover:text-link" href="#tentang">
-              {siteCopy.navigation.about}
+          <div className="hidden items-center gap-6 text-sm font-semibold md:flex">
+            <a className="hover:text-link" href="#alur">
+              Alur Belajar
             </a>
             <a className="hover:text-link" href="#fitur">
-              {siteCopy.navigation.features}
+              Fitur
             </a>
             <a className="hover:text-link" href="#bantuan">
-              {siteCopy.navigation.help}
+              Bantuan
             </a>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Link
-              className="pixel-shadow-sm min-h-11 border-2 border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-muted"
+              className="min-h-10 border-2 border-border bg-card px-4 py-2 text-sm font-semibold shadow-[2px_2px_0_var(--border)] hover:bg-muted"
               href="/login"
             >
               {siteCopy.navigation.signIn}
@@ -154,29 +155,31 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-24">
+        {/* Hero Section */}
+        <section className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:py-20">
           <div>
-            <p className="mb-5 inline-flex items-center gap-2 border-2 border-border bg-moodi-butter px-3 py-2 text-sm font-semibold text-ink">
+            <div className="mb-4 inline-flex items-center gap-2 border-2 border-border bg-moodi-butter px-3 py-1.5 text-xs font-semibold text-ink shadow-[2px_2px_0_var(--border)]">
               <span aria-hidden="true" className="size-2 bg-foreground" />
-              {copy.eyebrow}
-            </p>
+              <span>{copy.eyebrow}</span>
+            </div>
             <h1 className="font-pixelify text-4xl leading-[1.1] sm:text-5xl lg:text-6xl">
               {copy.headlineFirst}{" "}
               <span className="block text-link">{copy.headlineSecond}</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
               {copy.intro}
             </p>
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                className="pixel-press pixel-shadow inline-flex min-h-12 items-center justify-center border-2 border-border bg-moodi-sky px-6 font-semibold text-ink"
+                className="pixel-press inline-flex min-h-12 items-center justify-center gap-2 border-2 border-border bg-moodi-sky px-6 font-semibold text-ink shadow-[4px_4px_0_var(--border)]"
                 href="/register"
               >
-                {copy.primaryAction}
+                <span>{copy.primaryAction}</span>
+                <ArrowRightIcon className="size-4" />
               </Link>
               <a
                 className="inline-flex min-h-12 items-center justify-center border-2 border-border bg-card px-6 font-semibold hover:bg-muted"
-                href="#fitur"
+                href="#alur"
               >
                 {copy.secondaryAction}
               </a>
@@ -185,72 +188,61 @@ export default function Home() {
           <PixelStudyScene />
         </section>
 
+        {/* Steps / Flow Section (replaces generic about and redundant band) */}
         <section
-          aria-label={copy.bandLabel}
-          className="border-y-2 border-border bg-moodi-butter text-ink"
+          className="border-t-2 border-border bg-card py-14 sm:py-20"
+          id="alur"
         >
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-5 gap-y-3 px-4 py-5 sm:px-6">
-            {copy.concepts.map((concept, index) => (
-              <span className="inline-flex items-center gap-5" key={concept}>
-                <span className="font-semibold">{concept}</span>
-                {index < copy.concepts.length - 1 && (
-                  <span aria-hidden="true" className="size-2 rotate-45 bg-foreground" />
-                )}
-              </span>
-            ))}
-          </div>
-        </section>
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
+            <div className="max-w-2xl">
+              <h2 className="font-pixelify text-3xl leading-tight sm:text-4xl">
+                {copy.stepsTitle}
+              </h2>
+              <p className="mt-3 text-base text-muted-foreground">
+                {copy.stepsIntro}
+              </p>
+            </div>
 
-        <section
-          className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center"
-          id="tentang"
-        >
-          <div>
-            <p className="mb-3 text-sm font-semibold text-link">
-              {copy.aboutLabel}
-            </p>
-            <h2 className="max-w-xl font-pixelify text-3xl leading-tight sm:text-4xl">
-              {copy.aboutTitle}
-            </h2>
-            <p className="mt-5 max-w-xl leading-7 text-muted-foreground">
-              {copy.aboutDescription}
-            </p>
-            <h3 className="mt-10 font-pixelify text-2xl">
-              {copy.stepsTitle}
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {copy.stepsIntro}
-            </p>
-          </div>
-          <ol className="grid gap-3 sm:grid-cols-2">
-            {copy.steps.map((step, index) => (
-              <li
-                className="flex min-h-32 gap-4 border-2 border-border bg-card p-4"
-                key={step.title}
-              >
-                <span className="grid size-9 shrink-0 place-items-center border-2 border-border bg-moodi-sky font-pixelify font-bold text-ink">
-                  {index + 1}
-                </span>
-                <div>
-                  <h4 className="font-pixelify text-lg">{step.title}</h4>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {copy.steps.map((step, index) => (
+                <div
+                  className="flex flex-col border-2 border-border bg-background p-5 shadow-[4px_4px_0_var(--border)]"
+                  key={step.title}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-pixelify text-2xl font-bold text-link">
+                      0{index + 1}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={`size-3 ${
+                        index === 0
+                          ? "bg-moodi-sky"
+                          : index === 1
+                            ? "bg-moodi-butter"
+                            : "bg-moodi-pink"
+                      }`}
+                    />
+                  </div>
+                  <h3 className="mt-4 font-pixelify text-xl font-bold">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {step.description}
                   </p>
                 </div>
-              </li>
-            ))}
-          </ol>
+              ))}
+            </div>
+          </div>
         </section>
 
-        <section className="bg-muted" id="fitur">
-          <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-            <p className="mb-3 text-sm font-semibold text-link">
-              {copy.featuresLabel}
-            </p>
+        {/* Features Section */}
+        <section className="border-t-2 border-border bg-muted py-14 sm:py-20" id="fitur">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
             <h2 className="font-pixelify text-3xl sm:text-4xl">
               {copy.featuresTitle}
             </h2>
-            <div className="mt-9 grid gap-5 md:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
               {copy.features.map((feature, index) => (
                 <article
                   className={`border-2 border-border p-6 text-ink shadow-[4px_4px_0_var(--border)] ${
@@ -263,46 +255,43 @@ export default function Home() {
                   key={feature.title}
                 >
                   <FeatureGlyph icon={feature.icon} />
-                  <h3 className="mt-5 font-pixelify text-xl">
+                  <h3 className="mt-5 font-pixelify text-xl font-bold">
                     {feature.title}
                   </h3>
-                  <p className="mt-3 min-h-20 text-sm leading-6">
+                  <p className="mt-2 text-sm leading-6">
                     {feature.description}
                   </p>
-                  <div className="mt-5 border-t border-ink/40 pt-3 text-sm font-semibold">
-                    {copy.featuresLabel}
-                  </div>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
+        {/* Safety & Support Banner */}
         <section
-          className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_auto] lg:items-center"
+          className="border-t-2 border-border bg-card py-14 sm:py-20"
           id="bantuan"
         >
-          <div>
-            <p className="mb-3 text-sm font-semibold text-link">
-              {siteCopy.brand}
-            </p>
-            <h2 className="max-w-2xl font-pixelify text-3xl leading-tight sm:text-4xl">
-              {copy.closingTitle}
-            </h2>
-            <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-              {copy.closingDescription}
-            </p>
+          <div className="mx-auto flex w-full max-w-7xl flex-col justify-between gap-8 px-4 sm:px-6 md:flex-row md:items-center">
+            <div className="max-w-2xl">
+              <h2 className="font-pixelify text-3xl leading-tight sm:text-4xl">
+                {copy.closingTitle}
+              </h2>
+              <p className="mt-3 text-base text-muted-foreground">
+                {copy.closingDescription}
+              </p>
+            </div>
+            <Link
+              className="pixel-press inline-flex min-h-12 shrink-0 items-center justify-center border-2 border-border bg-moodi-pink px-6 font-semibold text-ink shadow-[4px_4px_0_var(--border)]"
+              href="/register"
+            >
+              {copy.primaryAction}
+            </Link>
           </div>
-          <Link
-            className="pixel-press pixel-shadow inline-flex min-h-12 items-center justify-center border-2 border-border bg-moodi-pink px-6 font-semibold text-ink"
-            href="/register"
-          >
-            {copy.primaryAction}
-          </Link>
         </section>
       </main>
 
-      <footer className="border-t-2 border-border bg-card" id="privasi">
+      <footer className="border-t-2 border-border bg-background" id="privasi">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1fr_auto] md:items-start">
           <div>
             <Link className="font-pixelify text-2xl font-bold" href="/">
@@ -311,10 +300,10 @@ export default function Home() {
             <p className="mt-2 text-sm text-muted-foreground">
               {copy.footerTagline}
             </p>
-            <p className="mt-5 max-w-2xl text-sm leading-6 text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-xs leading-5 text-muted-foreground">
               {copy.sdg}
             </p>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-xs font-semibold leading-5 text-muted-foreground">
               {copy.disclaimer}
             </p>
           </div>
@@ -322,14 +311,14 @@ export default function Home() {
             aria-label={copy.privacy}
             className="flex gap-5 text-sm font-semibold"
           >
-            <a className="underline underline-offset-4" href="#tentang">
-              {siteCopy.navigation.about}
+            <a className="hover:underline underline-offset-4" href="#alur">
+              Alur
             </a>
-            <a className="underline underline-offset-4" href="#fitur">
-              {siteCopy.navigation.features}
+            <a className="hover:underline underline-offset-4" href="#fitur">
+              Fitur
             </a>
-            <a className="underline underline-offset-4" href="#bantuan">
-              {siteCopy.navigation.help}
+            <a className="hover:underline underline-offset-4" href="#bantuan">
+              Bantuan
             </a>
           </nav>
         </div>

@@ -128,6 +128,13 @@ export function Sidebar({ role }: { role: UserRole }) {
         </div>
 
         <div className="mt-auto flex flex-col gap-3 border-t border-border pt-5">
+          <Link
+            className="flex items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            href="/dashboard/support"
+          >
+            <span aria-hidden="true">💚</span>
+            <span>Bantuan & Dukungan</span>
+          </Link>
           <ThemeToggle />
           <SignOutButton />
         </div>

@@ -161,8 +161,18 @@ export const siteCopy = {
             available: true,
             href: "/dashboard/mock-exam",
           },
-          { label: "Insight", icon: "chart", available: false },
-          { label: "Tenang", icon: "calm", available: false },
+          {
+            label: "Insight",
+            icon: "chart",
+            available: true,
+            href: "/dashboard/insight",
+          },
+          {
+            label: "Tenang",
+            icon: "calm",
+            available: true,
+            href: "/dashboard/calm",
+          },
         ],
       },
       admin: {
@@ -174,15 +184,24 @@ export const siteCopy = {
         emptyDescription:
           "Beberapa fitur admin belum tersedia. Halaman ini hanya dapat diakses oleh akun admin.",
         navigation: [
-          { label: "Ringkasan", icon: "home", available: true },
+          {
+            label: "Ringkasan",
+            icon: "home",
+            available: true,
+            href: "/dashboard",
+          },
           {
             label: "Bank soal",
             icon: "book",
             available: true,
             href: "/dashboard/question-bank",
           },
-
-          { label: "Bantuan", icon: "calm", available: false },
+          {
+            label: "Bantuan",
+            icon: "calm",
+            available: true,
+            href: "/dashboard/support",
+          },
         ],
       },
     },

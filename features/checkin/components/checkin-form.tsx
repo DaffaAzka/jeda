@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { ArrowRightIcon, CheckIcon } from "@/components/icons";
 import { submitCheckinAction } from "../actions";
 
 interface CheckinFormProps {
@@ -36,7 +37,7 @@ export function CheckinForm({
 
   const energyLabels = [
     { value: 1, label: "Lemas", desc: "Perlu istirahat" },
-    { value: 2, label: "Agak lelah", desc: "Energi rendah" },
+    { value: 2, label: "Lelah", desc: "Energi rendah" },
     { value: 3, label: "Cukup", desc: "Stabil" },
     { value: 4, label: "Bertenaga", desc: "Fokus baik" },
     { value: 5, label: "Prima", desc: "Penuh semangat" },
@@ -44,14 +45,14 @@ export function CheckinForm({
 
   const moodLabels = [
     { value: 1, label: "Berat", desc: "Hari terasa berat" },
-    { value: 2, label: "Muram", desc: "Kurang bersemangat" },
+    { value: 2, label: "Muram", desc: "Kurang semangat" },
     { value: 3, label: "Netral", desc: "Biasa saja" },
     { value: 4, label: "Baik", desc: "Cukup ceria" },
-    { value: 5, label: "Tenang", desc: "Sangat tenang & senang" },
+    { value: 5, label: "Tenang", desc: "Sangat tenang" },
   ];
 
   const stressLabels = [
-    { value: 1, label: "Rileks", desc: "Pikiran tenang" },
+    { value: 1, label: "Rileks", desc: "Pikiran lapang" },
     { value: 2, label: "Ringan", desc: "Terkendali" },
     { value: 3, label: "Sedang", desc: "Mulai ada beban" },
     { value: 4, label: "Tegang", desc: "Cukup cemas" },
@@ -82,25 +83,16 @@ export function CheckinForm({
 
   return (
     <form
-      className="pixel-shadow space-y-8 border-2 border-border bg-card p-6 sm:p-8"
+      className="pixel-shadow space-y-7 border-2 border-border bg-card p-5 sm:p-7"
       onSubmit={handleSubmit}
     >
       {/* Header */}
       <div className="border-b-2 border-border pb-4">
-        <div className="flex items-center gap-2">
-          <span className="grid size-7 place-items-center border-2 border-border bg-moodi-butter font-pixelify text-xs font-bold text-ink">
-            ✓
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Check-in 30 Detik
-          </span>
-        </div>
-        <h2 className="mt-2 font-pixelify text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Hari ini kamu gimana?
+        <h2 className="font-pixelify text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Bagaimana kondisimu hari ini?
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Kondisimu menentukan mode belajar hari ini: Pemulihan, Seimbang, atau
-          Tantangan.
+          Jawabanmu menentukan beban belajar harian: Pemulihan, Seimbang, atau Gas Pol.
         </p>
       </div>
 
@@ -114,7 +106,7 @@ export function CheckinForm({
       <div className="space-y-3">
         <div className="flex items-baseline justify-between">
           <label className="text-sm font-bold text-foreground">
-            1. Berapa jam tidurmu semalam?
+            1. Jam tidur semalam
           </label>
           <span className="font-pixelify text-xl font-bold text-foreground">
             {sleepHours} jam
@@ -122,26 +114,26 @@ export function CheckinForm({
         </div>
 
         {/* Quick presets */}
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-5 gap-2">
           {sleepPresets.map((hrs) => (
             <button
-              className={`pixel-press flex-1 min-h-11 border-2 border-border px-3 text-xs font-bold transition-all sm:text-sm ${
+              className={`pixel-press flex min-h-12 items-center justify-center border-2 border-border px-2 text-xs font-bold transition-all sm:text-sm ${
                 sleepHours === hrs
-                  ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
+                  ? "bg-moodi-sky font-bold text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
                   : "bg-background text-foreground hover:bg-muted"
               }`}
               key={hrs}
               onClick={() => setSleepHours(hrs)}
               type="button"
             >
-              {hrs} jam {hrs < 5 ? "😴" : hrs >= 7 ? "✨" : "☕"}
+              {hrs}j
             </button>
           ))}
         </div>
 
         {/* Fine slider */}
         <div className="flex items-center gap-3 pt-1">
-          <span className="text-xs text-muted-foreground">0h</span>
+          <span className="text-xs text-muted-foreground">1h</span>
           <input
             aria-label="Atur durasi tidur"
             className="h-2 w-full cursor-pointer accent-primary"
@@ -158,17 +150,22 @@ export function CheckinForm({
 
       {/* 2. Tingkat Energi */}
       <div className="space-y-3">
-        <label className="text-sm font-bold text-foreground">
-          2. Seberapa bertenaga tubuhmu sekarang?
-        </label>
+        <div className="flex items-baseline justify-between">
+          <label className="text-sm font-bold text-foreground">
+            2. Tingkat energi tubuh
+          </label>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {energyLabels[energy - 1]?.label} · {energyLabels[energy - 1]?.desc}
+          </span>
+        </div>
         <div className="grid grid-cols-5 gap-2">
           {energyLabels.map((item) => {
             const isSelected = energy === item.value;
             return (
               <button
-                className={`pixel-press flex flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
+                className={`pixel-press flex min-h-12 flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
                   isSelected
-                    ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary font-bold"
+                    ? "bg-moodi-sky font-bold text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
                     : "bg-background text-foreground hover:bg-muted"
                 }`}
                 key={item.value}
@@ -185,25 +182,26 @@ export function CheckinForm({
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Pilihan: {energyLabels[energy - 1]?.label} —{" "}
-          {energyLabels[energy - 1]?.desc}
-        </p>
       </div>
 
       {/* 3. Suasana Hati (Mood) */}
       <div className="space-y-3">
-        <label className="text-sm font-bold text-foreground">
-          3. Bagaimana suasana hatimu saat ini?
-        </label>
+        <div className="flex items-baseline justify-between">
+          <label className="text-sm font-bold text-foreground">
+            3. Suasana hati
+          </label>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {moodLabels[mood - 1]?.label} · {moodLabels[mood - 1]?.desc}
+          </span>
+        </div>
         <div className="grid grid-cols-5 gap-2">
           {moodLabels.map((item) => {
             const isSelected = mood === item.value;
             return (
               <button
-                className={`pixel-press flex flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
+                className={`pixel-press flex min-h-12 flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
                   isSelected
-                    ? "bg-moodi-butter text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary font-bold"
+                    ? "bg-moodi-butter font-bold text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
                     : "bg-background text-foreground hover:bg-muted"
                 }`}
                 key={item.value}
@@ -220,24 +218,26 @@ export function CheckinForm({
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Pilihan: {moodLabels[mood - 1]?.label} — {moodLabels[mood - 1]?.desc}
-        </p>
       </div>
 
       {/* 4. Beban Pikiran / Stres */}
       <div className="space-y-3">
-        <label className="text-sm font-bold text-foreground">
-          4. Seberapa berat beban pikiran atau rasa tegangmu?
-        </label>
+        <div className="flex items-baseline justify-between">
+          <label className="text-sm font-bold text-foreground">
+            4. Tekanan atau rasa cemas
+          </label>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {stressLabels[stress - 1]?.label} · {stressLabels[stress - 1]?.desc}
+          </span>
+        </div>
         <div className="grid grid-cols-5 gap-2">
           {stressLabels.map((item) => {
             const isSelected = stress === item.value;
             return (
               <button
-                className={`pixel-press flex flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
+                className={`pixel-press flex min-h-12 flex-col items-center justify-center border-2 border-border p-2 text-center transition-all ${
                   isSelected
-                    ? "bg-moodi-peach text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary font-bold"
+                    ? "bg-moodi-peach font-bold text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
                     : "bg-background text-foreground hover:bg-muted"
                 }`}
                 key={item.value}
@@ -254,17 +254,13 @@ export function CheckinForm({
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Pilihan: {stressLabels[stress - 1]?.label} —{" "}
-          {stressLabels[stress - 1]?.desc}
-        </p>
       </div>
 
       {/* 5. Catatan Singkat (Opsional) */}
       <div className="space-y-2">
         <div className="flex items-baseline justify-between">
           <label className="text-sm font-bold text-foreground" htmlFor="note">
-            Catatan harian (opsional)
+            Catatan singkat (opsional)
           </label>
           <span className="text-xs text-muted-foreground">
             {note.length}/280
@@ -275,7 +271,7 @@ export function CheckinForm({
           id="note"
           maxLength={280}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Ada hal yang ingin kamu catat tentang harimu? (misal: habis ulangan fisika, kepala agak berat...)"
+          placeholder="Ada hal yang mempengaruhi konsentrasimu hari ini?"
           rows={2}
           value={note}
         />
@@ -290,20 +286,25 @@ export function CheckinForm({
           type="checkbox"
         />
         <span>
-          Simpan catatan kondisi ini untuk membantu MOODI merekomendasikan mode
-          belajar harian yang sesuai. Data ini bersifat pribadi dan dapat dihapus
-          kapan saja di Pengaturan.
+          Gunakan data ini untuk menyesuaikan porsi belajar harian. Data bersifat pribadi dan dapat dihapus kapan saja di Pengaturan.
         </span>
       </label>
 
       {/* Action */}
       <div className="pt-2">
         <button
-          className="pixel-press pixel-shadow flex w-full min-h-13 items-center justify-center gap-2 border-2 border-border bg-moodi-sky px-6 py-3 font-pixelify text-lg font-bold text-ink shadow-[3px_3px_0_var(--border)] hover:bg-moodi-sky/90 disabled:opacity-50"
+          className="pixel-press flex w-full min-h-12 items-center justify-center gap-2 border-2 border-border bg-moodi-sky px-6 py-3 font-pixelify text-base font-bold text-ink shadow-[3px_3px_0_var(--border)] hover:bg-moodi-sky/90 disabled:opacity-50 sm:text-lg"
           disabled={isPending}
           type="submit"
         >
-          {isPending ? "Menyesuaikan Ritme Belajar..." : "Simpan Check-in & Buka Rencana Hari Ini →"}
+          {isPending ? (
+            <span>Menyiapkan rencana...</span>
+          ) : (
+            <>
+              <span>Buka rencana hari ini</span>
+              <ArrowRightIcon className="size-5" />
+            </>
+          )}
         </button>
       </div>
     </form>

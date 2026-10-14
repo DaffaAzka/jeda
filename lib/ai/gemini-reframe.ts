@@ -1,6 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
+import dotenv from "dotenv";
 
 export interface ReframedThoughtResult {
   thought: string;
@@ -63,11 +64,22 @@ export async function reframeThoughtWithGemini(
   studentThought: string,
 ): Promise<ReframedThoughtResult> {
   const cleanThought = studentThought.trim();
-  const apiKey = process.env.GEMINI_API_KEY;
+
+  // Ensure fresh reading of .env even if dev server was started before variable was added
+  if (!process.env.GEMINI_API_KEY) {
+    try {
+      dotenv.config();
+    } catch {
+      // ignore
+    }
+  }
+
+  const rawKey = process.env.GEMINI_API_KEY;
+  const apiKey = rawKey?.replace(/^["']|["']$/g, "").trim();
 
   if (!apiKey) {
     console.warn(
-      "GEMINI_API_KEY is not defined. Using local reframing fallback.",
+      "[Gemini Reframe] GEMINI_API_KEY is not defined in process.env. Using local fallback.",
     );
     return {
       thought: cleanThought,
@@ -94,7 +106,9 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
 }`;
 
   for (const model of CANDIDATE_MODELS) {
+    const start = Date.now();
     try {
+      console.log(`[Gemini Reframe] Calling model ${model}...`);
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: "POST",
@@ -118,8 +132,15 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
         }),
       });
 
+      const elapsed = Date.now() - start;
+      console.log(`[Gemini Reframe] Model ${model} responded: ${res.status} in ${elapsed}ms`);
+
       if (!res.ok) {
-        // Log brief error and continue to the next model
+        const errJson = await res.json().catch(() => null);
+        console.warn(
+          `[Gemini Reframe] Model ${model} error:`,
+          errJson?.error?.message ?? res.statusText,
+        );
         continue;
       }
 
@@ -131,6 +152,7 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
       const validated = reframedResponseSchema.safeParse(parsed);
 
       if (validated.success) {
+        console.log(`[Gemini Reframe] Successfully reframed via ${model} in ${elapsed}ms!`);
         return {
           thought: cleanThought,
           validation: validated.data.validation,
@@ -140,13 +162,14 @@ Keluarkan response HANYA berupa JSON valid dengan format persis berikut:
           source: "gemini",
         };
       }
-    } catch {
-      // Aborted or network issue on this model, proceed to the next candidate
+    } catch (err: any) {
+      console.warn(`[Gemini Reframe] Model ${model} threw error:`, err?.name ?? err?.message);
       continue;
     }
   }
 
   // Graceful local fallback if all models fail
+  console.warn("[Gemini Reframe] All models failed, using local fallback.");
   const lower = cleanThought.toLowerCase();
   const isParent =
     lower.includes("orang tua") ||

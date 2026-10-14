@@ -465,8 +465,8 @@ function ReframingCards() {
               <span className="rounded-md border border-border bg-moodi-sand/50 px-2.5 py-1 text-xs font-bold text-foreground">
                 🎯 Pola Pikir Terdeteksi: {aiResult.distortion}
               </span>
-              <span className="text-[11px] text-muted-foreground">
-                Teknik Cognitive Reframing
+              <span className={`text-[11px] font-semibold ${aiResult.source === "gemini" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                {aiResult.source === "gemini" ? "✨ Didukung Gemini AI" : "🌱 Mode Refleksi Siaga"}
               </span>
             </div>
 

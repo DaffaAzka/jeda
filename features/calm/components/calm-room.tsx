@@ -51,11 +51,10 @@ export function CalmRoom({ userName = "" }: { userName?: string }) {
 
           return (
             <button
-              className={`pixel-press flex min-h-11 items-center justify-center gap-2 border-2 border-border px-4 py-2 text-xs font-bold transition-all sm:text-sm ${
-                isActive
-                  ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
-                  : "bg-card text-foreground hover:bg-muted"
-              }`}
+              className={`pixel-press flex min-h-11 items-center justify-center gap-2 border-2 border-border px-4 py-2 text-xs font-bold transition-all sm:text-sm ${isActive
+                ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
+                : "bg-card text-foreground hover:bg-muted"
+                }`}
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               type="button"
@@ -143,9 +142,8 @@ function BoxBreathingExercise() {
       <div className="my-6 flex flex-col items-center justify-center">
         <div className="relative flex size-52 items-center justify-center border-4 border-dashed border-border bg-muted/20 sm:size-60">
           <div
-            className={`flex size-40 items-center justify-center border-4 border-border shadow-[4px_4px_0_var(--border)] transition-all duration-1000 ease-in-out sm:size-44 ${
-              currentPhase.color
-            } ${isActive ? currentPhase.scale : "scale-100"}`}
+            className={`flex size-40 items-center justify-center border-4 border-border shadow-[4px_4px_0_var(--border)] transition-all duration-1000 ease-in-out sm:size-44 ${currentPhase.color
+              } ${isActive ? currentPhase.scale : "scale-100"}`}
           >
             <div className="space-y-1 select-none">
               <span className="font-pixelify text-3xl font-bold sm:text-4xl">
@@ -475,21 +473,11 @@ function ReframingCards() {
               </span>
             </div>
 
-            {/* Validation Message */}
-            <div className="border border-border bg-card p-3">
-              <p className="text-xs font-bold text-foreground">
-                Validasi:
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-foreground">
-                {aiResult.validation}
-              </p>
-            </div>
-
             {/* Side-by-side: Thought vs Fact */}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-1.5 border-2 border-border bg-background p-3">
                 <span className="text-xs font-bold text-muted-foreground">
-                  Pikiran Awal
+                  Pesan
                 </span>
                 <p className="text-sm italic leading-relaxed text-foreground/80">
                   &ldquo;{aiResult.thought}&rdquo;
@@ -498,10 +486,10 @@ function ReframingCards() {
 
               <div className="space-y-1.5 border-2 border-border bg-moodi-sky/30 p-3">
                 <span className="text-xs font-bold text-ink">
-                  Fakta Objektif
+                  Respon
                 </span>
                 <p className="text-sm font-semibold leading-relaxed text-foreground">
-                  {aiResult.fact}
+                  {aiResult.validation}
                 </p>
               </div>
             </div>
@@ -560,9 +548,8 @@ function ReframingCards() {
 
             return (
               <article
-                className={`pixel-shadow cursor-pointer border-2 border-border p-4 transition-all ${
-                  isFlipped ? "bg-moodi-sky/30" : "bg-background hover:bg-muted"
-                }`}
+                className={`pixel-shadow cursor-pointer border-2 border-border p-4 transition-all ${isFlipped ? "bg-moodi-sky/30" : "bg-background hover:bg-muted"
+                  }`}
                 key={idx}
                 onClick={() => setFlippedIndex(isFlipped ? null : idx)}
                 role="button"

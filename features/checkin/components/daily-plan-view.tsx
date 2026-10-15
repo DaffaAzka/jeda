@@ -171,7 +171,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
             </span>
             {todayCheckin.note && (
               <span className="italic text-foreground">
-                — &ldquo;{todayCheckin.note}&rdquo;
+                · &ldquo;{todayCheckin.note}&rdquo;
               </span>
             )}
           </div>

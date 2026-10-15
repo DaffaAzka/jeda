@@ -5,6 +5,12 @@ import Link from "next/link";
 import type { StudentDashboardData } from "../queries";
 import { toggleTaskStatusAction, swapTaskAction } from "../actions";
 import { ActiveSessionCard } from "@/features/practice/components/active-session-card";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  PencilIcon,
+  SproutIcon,
+} from "@/components/icons";
 
 interface DailyPlanViewProps {
   data: StudentDashboardData;
@@ -12,7 +18,7 @@ interface DailyPlanViewProps {
 }
 
 export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
-  const { todayPlan, todayCheckin, profile, daysUntilExam, activeSession, user } =
+  const { todayPlan, todayCheckin, profile, daysUntilExam, activeSession } =
     data;
 
   const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null);
@@ -26,7 +32,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
   const modeConfig = {
     recovery: {
       title: "Mode Pemulihan",
-      subtitle: "Hari ini kita ringan dulu.",
+      subtitle: "Hari ini ritme santai dulu.",
       bg: "bg-moodi-sky/30",
       badgeBg: "bg-moodi-sky",
       border: "border-moodi-sky",
@@ -34,7 +40,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
     },
     challenge: {
       title: "Mode Tantangan",
-      subtitle: "Energimu prima, dorong kemampuan maksimal!",
+      subtitle: "Energimu prima, dorong kapasitas maksimal.",
       bg: "bg-moodi-pink/30",
       badgeBg: "bg-moodi-pink",
       border: "border-moodi-pink",
@@ -82,7 +88,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
   const totalTasks = todayPlan.tasks.length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Active Tryout Session Alert */}
       {activeSession && <ActiveSessionCard session={activeSession} />}
 
@@ -90,61 +96,64 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
       {isReferralTriggered && (
         <aside
           aria-label="Dukungan Kesejahteraan"
-          className="pixel-shadow flex flex-col gap-3 border-2 border-border bg-moodi-peach/40 p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="pixel-shadow flex flex-col gap-3 border-2 border-border bg-moodi-peach/40 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="space-y-1">
-            <span className="inline-block border border-border bg-card px-2 py-0.5 text-xs font-bold text-ink">
-              🌿 Ruang Dukungan
+            <span className="inline-flex items-center gap-1.5 border border-border bg-card px-2 py-0.5 text-xs font-bold text-ink">
+              <SproutIcon className="size-3.5 text-foreground" />
+              <span>Ruang Dukungan</span>
             </span>
             <h3 className="font-semibold text-foreground">
               Beberapa hari ini terasa berat. Kamu tidak harus menghadapinya sendirian.
             </h3>
             <p className="text-xs text-muted-foreground">
-              Tersedia konselor sekolah dan layanan kesehatan mental resmi terverifikasi yang siap mendengar tanpa menghakimi.
+              Tersedia konselor sekolah dan kontak layanan resmi yang siap mendengar tanpa menghakimi.
             </p>
           </div>
           <Link
-            className="pixel-press pixel-shadow inline-flex shrink-0 items-center justify-center border-2 border-border bg-card px-4 py-2 text-xs font-bold text-foreground hover:bg-muted"
+            className="pixel-press inline-flex shrink-0 items-center justify-center gap-1 border-2 border-border bg-card px-3 py-1.5 text-xs font-bold text-foreground shadow-[2px_2px_0_var(--border)] hover:bg-muted"
             href="/dashboard/support"
           >
-            Lihat Kontak Bantuan →
+            <span>Kontak bantuan</span>
+            <ArrowRightIcon className="size-3.5" />
           </Link>
         </aside>
       )}
 
-      {/* Mode Banner & Header */}
+      {/* Structural Mode Banner & Daily Status */}
       <section
         aria-labelledby="today-mode-title"
-        className={`pixel-shadow border-2 border-border ${modeConfig.bg} p-6 sm:p-8 space-y-4`}
+        className={`pixel-shadow border-2 border-border ${modeConfig.bg} p-5 sm:p-7 space-y-4`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
           <div className="flex items-center gap-2">
             <span
-              className={`border border-border px-3 py-1 font-pixelify text-xs font-bold ${modeConfig.badgeBg} text-ink`}
+              className={`border-2 border-border px-3 py-1 font-pixelify text-xs font-bold ${modeConfig.badgeBg} text-ink`}
             >
               {modeConfig.title}
             </span>
             {daysUntilExam !== null && (
-              <span className="border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground">
-                ⏳ {daysUntilExam} Hari Menuju UTBK
+              <span className="border border-border bg-card px-2.5 py-1 text-xs font-semibold text-foreground">
+                {daysUntilExam} hari menuju UTBK
               </span>
             )}
           </div>
 
           {onEditCheckin && (
             <button
-              className="pixel-press border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted"
+              className="pixel-press inline-flex items-center gap-1.5 border border-border bg-card px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted"
               onClick={onEditCheckin}
               type="button"
             >
-              Ubah Check-in Hari Ini ✎
+              <PencilIcon className="size-3" />
+              <span>Ubah kondisi</span>
             </button>
           )}
         </div>
 
         <div>
           <h2
-            className="font-pixelify text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            className="font-pixelify text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
             id="today-mode-title"
           >
             {modeConfig.subtitle}
@@ -154,10 +163,24 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
           </p>
         </div>
 
+        {/* Streamlined Condition Snapshot (Replaces 4 duplicate stat cards) */}
+        {todayCheckin && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-3 text-xs text-muted-foreground">
+            <span>
+              Kondisi: Tidur {todayCheckin.sleepHours}j · Energi {todayCheckin.energy}/5 · Mood {todayCheckin.mood}/5 · Stres {todayCheckin.stress}/5
+            </span>
+            {todayCheckin.note && (
+              <span className="italic text-foreground">
+                — &ldquo;{todayCheckin.note}&rdquo;
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Target summary if present */}
         {profile?.targetUniversity && (
-          <div className="border-t border-border/40 pt-3 text-xs text-muted-foreground">
-            Target Belajar:{" "}
+          <div className="text-xs text-muted-foreground">
+            Target:{" "}
             <span className="font-semibold text-foreground">
               {profile.targetUniversity}
               {profile.targetMajor ? ` · ${profile.targetMajor}` : ""}
@@ -166,12 +189,12 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
         )}
       </section>
 
-      {/* Today's Tasks Cards */}
+      {/* Today's Tasks */}
       <section aria-labelledby="tasks-heading" className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
+          <div>
             <h2
-              className="font-pixelify text-2xl font-bold tracking-tight text-foreground"
+              className="font-pixelify text-xl font-bold tracking-tight text-foreground sm:text-2xl"
               id="tasks-heading"
             >
               Rencana Belajar Hari Ini
@@ -179,11 +202,6 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
             <p className="text-xs text-muted-foreground">
               {completedCount} dari {totalTasks} langkah terselesaikan.
             </p>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-xs font-semibold">
-            <span className="inline-block size-2.5 rounded-full bg-moodi-sky border border-border" />
-            <span>{Math.round((completedCount / (totalTasks || 1)) * 100)}% selesai</span>
           </div>
         </div>
 
@@ -201,7 +219,6 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
               rest: { label: "Istirahat", badge: "bg-muted" },
             }[task.type] ?? { label: "Tugas", badge: "bg-card" };
 
-            // Determine direct CTA route
             const targetHref =
               task.type === "tryout"
                 ? "/dashboard/mock-exam"
@@ -211,7 +228,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
 
             return (
               <article
-                className={`pixel-shadow flex flex-col justify-between border-2 border-border p-5 transition-all ${
+                className={`pixel-shadow flex flex-col justify-between border-2 border-border p-4 transition-all sm:p-5 ${
                   isDone
                     ? "bg-muted/70 opacity-75"
                     : "bg-card hover:bg-card/90"
@@ -226,7 +243,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
                       {typeConfig.label}
                     </span>
                     <span className="text-xs font-mono text-muted-foreground">
-                      ⏱️ {task.estMinutes} mnt
+                      {task.estMinutes} mnt
                     </span>
                   </div>
 
@@ -250,7 +267,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
                 <div className="mt-5 space-y-3 border-t border-border/40 pt-3">
                   <div className="flex items-center justify-between gap-2">
                     <button
-                      className={`pixel-press flex items-center gap-1.5 border-2 border-border px-3 py-1 text-xs font-bold ${
+                      className={`pixel-press inline-flex min-h-9 items-center gap-1.5 border-2 border-border px-3 py-1 text-xs font-bold ${
                         isDone
                           ? "bg-foreground text-background"
                           : "bg-background text-foreground hover:bg-muted"
@@ -259,7 +276,8 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
                       onClick={() => handleToggle(task.id, task.status)}
                       type="button"
                     >
-                      <span>{isDone ? "✓ Selesai" : "○ Tandai Selesai"}</span>
+                      {isDone && <CheckIcon className="size-3.5" />}
+                      <span>{isDone ? "Selesai" : "Tandai selesai"}</span>
                     </button>
 
                     <button
@@ -275,10 +293,11 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
 
                   {!isDone && (
                     <Link
-                      className="pixel-press pixel-shadow flex w-full items-center justify-center border-2 border-border bg-moodi-sky py-2 text-xs font-bold text-ink hover:bg-moodi-sky/90"
+                      className="pixel-press pixel-shadow flex w-full items-center justify-center gap-1.5 border-2 border-border bg-moodi-sky py-2 text-xs font-bold text-ink hover:bg-moodi-sky/90"
                       href={targetHref}
                     >
-                      Mulai Sekarang →
+                      <span>Mulai</span>
+                      <ArrowRightIcon className="size-3.5" />
                     </Link>
                   )}
                 </div>
@@ -287,59 +306,6 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
           })}
         </div>
       </section>
-
-      {/* Daily Condition Snapshot */}
-      {todayCheckin && (
-        <section
-          aria-labelledby="snapshot-title"
-          className="border-2 border-border bg-card p-5"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
-            <h3
-              className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
-              id="snapshot-title"
-            >
-              Kondisi Tercatat Hari Ini
-            </h3>
-            <span className="text-xs text-muted-foreground">
-              Check-in 30 Detik
-            </span>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 text-center">
-            <div className="border border-border bg-muted/40 p-2.5">
-              <span className="block font-pixelify text-xl font-bold">
-                {todayCheckin.sleepHours} jam
-              </span>
-              <span className="text-[11px] text-muted-foreground">Tidur</span>
-            </div>
-            <div className="border border-border bg-muted/40 p-2.5">
-              <span className="block font-pixelify text-xl font-bold">
-                {todayCheckin.energy}/5
-              </span>
-              <span className="text-[11px] text-muted-foreground">Energi</span>
-            </div>
-            <div className="border border-border bg-muted/40 p-2.5">
-              <span className="block font-pixelify text-xl font-bold">
-                {todayCheckin.mood}/5
-              </span>
-              <span className="text-[11px] text-muted-foreground">Mood</span>
-            </div>
-            <div className="border border-border bg-muted/40 p-2.5">
-              <span className="block font-pixelify text-xl font-bold">
-                {todayCheckin.stress}/5
-              </span>
-              <span className="text-[11px] text-muted-foreground">Stres</span>
-            </div>
-          </div>
-
-          {todayCheckin.note && (
-            <p className="mt-3 text-xs italic text-muted-foreground">
-              &ldquo;{todayCheckin.note}&rdquo;
-            </p>
-          )}
-        </section>
-      )}
     </div>
   );
 }

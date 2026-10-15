@@ -5,6 +5,7 @@ import { ActiveSessionCard } from "@/features/practice/components/active-session
 import { LevelPicker } from "@/features/practice/components/level-picker";
 import { startSessionAction } from "@/features/practice/actions";
 import { PRACTICE } from "@/config/practice";
+import { CloseIcon } from "@/components/icons";
 import { siteCopy } from "@/lib/copy/id";
 import type { TryoutMode } from "@/app/generated/prisma/enums";
 import type { StudyCatalogData } from "@/features/practice/queries";
@@ -156,11 +157,11 @@ export function StudyCatalog({
               </div>
               <button
                 aria-label="Tutup panel"
-                className="pixel-press border border-border px-2 py-1 text-xs font-bold hover:bg-muted"
+                className="pixel-press inline-flex size-7 items-center justify-center border border-border text-xs font-bold hover:bg-muted"
                 onClick={() => setSelectedTopic(null)}
                 type="button"
               >
-                ✕
+                <CloseIcon className="size-3.5" />
               </button>
             </div>
 

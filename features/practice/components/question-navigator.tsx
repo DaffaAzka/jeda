@@ -1,6 +1,7 @@
 "use client";
 
 import { siteCopy } from "@/lib/copy/id";
+import { CheckIcon, CloseIcon, SproutIcon } from "@/components/icons";
 
 interface QuestionNavigatorProps {
   totalQuestions: number;
@@ -32,11 +33,11 @@ export function QuestionNavigator({
         {onCloseMobile && (
           <button
             aria-label="Tutup navigasi"
-            className="pixel-press border border-border px-2 py-0.5 text-xs font-bold lg:hidden"
+            className="pixel-press inline-flex size-7 items-center justify-center border border-border text-xs font-bold lg:hidden"
             onClick={onCloseMobile}
             type="button"
           >
-            ✕
+            <CloseIcon className="size-3.5" />
           </button>
         )}
       </div>
@@ -67,9 +68,7 @@ export function QuestionNavigator({
               <span className="flex items-center gap-0.5">
                 {index + 1}
                 {isAnswered && !isCurrent && (
-                  <span aria-hidden="true" className="text-[10px]">
-                    ✓
-                  </span>
+                  <CheckIcon className="size-2.5" />
                 )}
               </span>
             </button>
@@ -103,7 +102,7 @@ export function QuestionNavigator({
             }}
             type="button"
           >
-            <span aria-hidden="true" className="text-base">🌿</span>
+            <SproutIcon className="size-4" />
             <span>{siteCopy.practice.panicButton}</span>
           </button>
         </div>
@@ -128,7 +127,7 @@ export function QuestionNavigator({
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 lg:hidden backdrop-blur-xs"
           role="dialog"
         >
-          <div className="pixel-shadow w-full max-w-md border-2 border-border bg-card p-5">
+          <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto border-2 border-border bg-card p-5 shadow-[4px_4px_0_var(--border)]">
             {content}
           </div>
         </div>

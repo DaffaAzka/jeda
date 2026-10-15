@@ -5,6 +5,7 @@ import Link from "next/link";
 import { siteCopy } from "@/lib/copy/id";
 import { RichContent } from "@/components/rich-content";
 import { ErrorTagPicker } from "@/features/practice/components/error-tag-picker";
+import { CheckIcon, WarningIcon } from "@/components/icons";
 import type { SessionReviewData } from "@/features/practice/queries";
 
 export function ReviewList({ session }: { session: SessionReviewData }) {
@@ -134,12 +135,12 @@ export function ReviewList({ session }: { session: SessionReviewData }) {
 
                 {ans.isCorrect ?
                   <span className="inline-flex items-center gap-1.5 border border-border bg-moodi-sky/30 px-3 py-1 text-xs font-bold text-ink">
-                    <span>✓</span>
+                    <CheckIcon className="size-3.5" />
                     <span>{siteCopy.practice.labelCorrect}</span>
                   </span>
                 : ans.selectedOptionId ?
                   <span className="inline-flex items-center gap-1.5 border border-border bg-moodi-butter/50 px-3 py-1 text-xs font-bold text-ink">
-                    <span>⚠</span>
+                    <WarningIcon className="size-3.5" />
                     <span>{siteCopy.practice.labelCheckAgain}</span>
                   </span>
                 : <span className="inline-flex items-center gap-1.5 border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">

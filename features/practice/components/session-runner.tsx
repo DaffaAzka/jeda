@@ -14,6 +14,7 @@ import {
   type ImmediateFeedback,
 } from "@/features/practice/actions";
 import { RichContent } from "@/components/rich-content";
+import { CheckIcon, InfoIcon, SproutIcon } from "@/components/icons";
 import type { TryoutMode } from "@/app/generated/prisma/enums";
 
 export interface RunnerQuestion {
@@ -202,13 +203,24 @@ export function SessionRunner({
         </div>
 
         {/* Right Nav toggle & Panic for Mobile */}
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <button
+            aria-label={siteCopy.practice.panicButton}
+            className="pixel-press flex items-center gap-1 border-2 border-border bg-moodi-peach px-2 py-1 text-xs font-bold text-ink"
+            onClick={() => setIsPanicOpen(true)}
+            type="button"
+          >
+            <SproutIcon className="size-3.5" />
+            <span>Napas</span>
+          </button>
+
           <button
             aria-label={siteCopy.practice.questionNavigator}
-            className="pixel-press flex items-center gap-1 border border-border px-3 py-1 text-xs font-semibold"
+            className="pixel-press flex items-center gap-1 border border-border px-2.5 py-1 text-xs font-semibold"
             onClick={() => setIsNavOpenMobile(true)}
-            type="button">
-            <span>Daftar Soal</span>
+            type="button"
+          >
+            <span>Soal</span>
             <span className="font-mono">
               ({answeredIndices.size}/{questions.length})
             </span>
@@ -300,7 +312,13 @@ export function SessionRunner({
                 : "bg-moodi-butter/40 text-ink"
               }`}>
               <div className="flex items-center gap-2 font-bold text-sm">
-                <span>{currentImmediateFeedback.isCorrect ? "✓" : "!"}</span>
+                <span>
+                  {currentImmediateFeedback.isCorrect ? (
+                    <CheckIcon className="size-4" />
+                  ) : (
+                    <InfoIcon className="size-4" />
+                  )}
+                </span>
                 <span>
                   {currentImmediateFeedback.isCorrect ?
                     siteCopy.practice.immediateCorrect
@@ -369,7 +387,14 @@ export function SessionRunner({
                   : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
               }
               type="button">
-              {isAllAnswered ? `${siteCopy.practice.finish} ✓` : `Belum Lengkap (${answeredIndices.size}/${questions.length})`}
+              {isAllAnswered ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span>{siteCopy.practice.finish}</span>
+                  <CheckIcon className="size-3.5" />
+                </span>
+              ) : (
+                `Belum lengkap (${answeredIndices.size}/${questions.length})`
+              )}
             </button>
           ) : (
             <button

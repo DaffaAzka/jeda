@@ -3,26 +3,39 @@
 import { useState, useEffect, useTransition } from "react";
 import { saveCalmSessionAction, reframeThoughtAction } from "../actions";
 import type { ReframedThoughtResult } from "@/lib/ai/gemini-reframe";
+import {
+  BulbIcon,
+  CheckIcon,
+  EarIcon,
+  EyeIcon,
+  HandIcon,
+  HeartIcon,
+  NoseIcon,
+  PencilIcon,
+  SproutIcon,
+  TasteIcon,
+  ThoughtIcon,
+  WindIcon,
+} from "@/components/icons";
 
 type CalmTab = "breathing" | "grounding" | "reframing" | "journal";
 
 export function CalmRoom({ userName = "" }: { userName?: string }) {
   const [activeTab, setActiveTab] = useState<CalmTab>("breathing");
 
+  const tabs: Array<{ id: CalmTab; label: string; icon: typeof WindIcon }> = [
+    { id: "breathing", label: "Napas", icon: WindIcon },
+    { id: "grounding", label: "Grounding", icon: SproutIcon },
+    { id: "reframing", label: "Reframe", icon: BulbIcon },
+    { id: "journal", label: "Jurnal", icon: PencilIcon },
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="border-b-2 border-border pb-4">
-        <div className="flex items-center gap-2">
-          <span className="grid size-7 place-items-center border-2 border-border bg-moodi-sky font-pixelify text-xs font-bold text-ink">
-            🌿
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Ruang Tenang
-          </span>
-        </div>
-        <h1 className="mt-2 font-pixelify text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Beri Ruang untuk Bernapas
+        <h1 className="font-pixelify text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Ruang Tenang
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Luangkan sejenak untuk menenangkan pikiran, meredakan ketegangan fisik,
@@ -31,27 +44,27 @@ export function CalmRoom({ userName = "" }: { userName?: string }) {
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex flex-wrap gap-2 border-b-2 border-border pb-4">
-        {[
-          { id: "breathing", label: "Pernapasan Kotak (4-4-4-4)", icon: "🌬️" },
-          { id: "grounding", label: "Grounding 5-4-3-2-1", icon: "🌱" },
-          { id: "reframing", label: "Pikiran vs Fakta", icon: "💡" },
-          { id: "journal", label: "Jurnal Singkat", icon: "📝" },
-        ].map((tab) => (
-          <button
-            className={`pixel-press border-2 border-border px-4 py-2 text-xs font-bold transition-all sm:text-sm ${
-              activeTab === tab.id
-                ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
-                : "bg-card text-foreground hover:bg-muted"
-            }`}
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as CalmTab)}
-            type="button"
-          >
-            <span>{tab.icon} </span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap border-b-2 border-border pb-4">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              className={`pixel-press flex min-h-11 items-center justify-center gap-2 border-2 border-border px-4 py-2 text-xs font-bold transition-all sm:text-sm ${
+                isActive
+                  ? "bg-moodi-sky text-ink shadow-[2px_2px_0_var(--border)] ring-2 ring-primary"
+                  : "bg-card text-foreground hover:bg-muted"
+              }`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              type="button"
+            >
+              <Icon className="size-4 shrink-0" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Panels */}
@@ -72,10 +85,10 @@ function BoxBreathingExercise() {
   const [hasSaved, setHasSaved] = useState<boolean>(false);
 
   const phases = [
-    { name: "Tarik Napas", instruction: "Tarik napas perlahan melalui hidung", color: "bg-moodi-sky text-ink", scale: "scale-125" },
-    { name: "Tahan", instruction: "Tahan napas di dalam dada dengan tenang", color: "bg-moodi-butter text-ink", scale: "scale-125" },
-    { name: "Hembuskan", instruction: "Hembuskan napas perlahan lewat mulut", color: "bg-moodi-peach text-ink", scale: "scale-75" },
-    { name: "Tahan", instruction: "Tahan paru-paru kosong sejenak", color: "bg-muted text-foreground", scale: "scale-75" },
+    { name: "Tarik Napas", instruction: "Tarik napas perlahan melalui hidung", color: "bg-moodi-sky text-ink", scale: "scale-110" },
+    { name: "Tahan", instruction: "Tahan napas di dalam dada dengan tenang", color: "bg-moodi-butter text-ink", scale: "scale-110" },
+    { name: "Hembuskan", instruction: "Hembuskan napas perlahan lewat mulut", color: "bg-moodi-peach text-ink", scale: "scale-90" },
+    { name: "Tahan", instruction: "Tahan paru-paru kosong sejenak", color: "bg-muted text-foreground", scale: "scale-90" },
   ];
 
   useEffect(() => {
@@ -86,7 +99,6 @@ function BoxBreathingExercise() {
         if (prev > 1) {
           return prev - 1;
         }
-        // Advance phase
         setPhaseIndex((curr) => {
           const next = (curr + 1) % 4;
           if (next === 0) {
@@ -116,67 +128,69 @@ function BoxBreathingExercise() {
   }
 
   return (
-    <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-8 text-center">
-      <div className="max-w-md mx-auto space-y-2">
-        <h2 className="font-pixelify text-2xl sm:text-3xl font-bold">
+    <div className="pixel-shadow space-y-6 border-2 border-border bg-card p-6 text-center sm:p-8">
+      <div className="mx-auto max-w-md space-y-1">
+        <h2 className="font-pixelify text-2xl font-bold sm:text-3xl">
           Pernapasan Kotak (4-4-4-4)
         </h2>
-        <p className="text-xs sm:text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground sm:text-sm">
           Pola napas 4 detik tarik, 4 detik tahan, 4 detik hembus, 4 detik jeda
-          efektif mengaktifkan sistem saraf parasimpatis dan menurunkan detak jantung.
+          untuk menenangkan detak jantung dan meredakan ketegangan.
         </p>
       </div>
 
-      {/* Visual Orb Container */}
-      <div className="my-8 flex flex-col items-center justify-center">
-        <div className="relative flex size-56 sm:size-64 items-center justify-center rounded-full border-4 border-dashed border-border/60 bg-muted/20">
+      {/* Visual Box Container (Sharp pixel container) */}
+      <div className="my-6 flex flex-col items-center justify-center">
+        <div className="relative flex size-52 items-center justify-center border-4 border-dashed border-border bg-muted/20 sm:size-60">
           <div
-            className={`flex size-40 sm:size-44 items-center justify-center rounded-full border-2 border-border shadow-[4px_4px_0_var(--border)] transition-all duration-1000 ease-in-out ${
+            className={`flex size-40 items-center justify-center border-4 border-border shadow-[4px_4px_0_var(--border)] transition-all duration-1000 ease-in-out sm:size-44 ${
               currentPhase.color
             } ${isActive ? currentPhase.scale : "scale-100"}`}
           >
-            <div className="space-y-1">
-              <span className="font-pixelify text-3xl sm:text-4xl font-bold">
-                {isActive ? secondsInPhase : "4s"}
+            <div className="space-y-1 select-none">
+              <span className="font-pixelify text-3xl font-bold sm:text-4xl">
+                {isActive ? secondsInPhase : "4"}
               </span>
-              <p className="font-pixelify text-xs sm:text-sm font-semibold uppercase tracking-wider">
+              <p className="text-xs font-bold uppercase tracking-wider">
                 {isActive ? currentPhase.name : "Siap"}
               </p>
             </div>
           </div>
         </div>
 
-        <p className="mt-4 font-semibold text-sm sm:text-base text-foreground min-h-6">
-          {isActive
-            ? currentPhase.instruction
-            : "Tekan tombol di bawah untuk memulai sesi napas."}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Siklus selesai: {cyclesCompleted}
+        {/* Phase instruction */}
+        <p className="mt-4 min-h-6 text-sm font-semibold text-foreground">
+          {isActive ? currentPhase.instruction : "Klik tombol di bawah untuk mulai bernapas."}
         </p>
       </div>
 
+      {/* Cycles completed */}
+      {cyclesCompleted > 0 && (
+        <div className="text-xs font-semibold text-muted-foreground">
+          {cyclesCompleted} siklus selesai ({cyclesCompleted * 16} detik)
+        </div>
+      )}
+
       {/* Controls */}
-      <div className="flex justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
         {!isActive ? (
           <button
-            className="pixel-press pixel-shadow min-h-12 border-2 border-border bg-moodi-sky px-8 font-pixelify text-base font-bold text-ink shadow-[3px_3px_0_var(--border)] hover:bg-moodi-sky/90"
+            className="pixel-press pixel-shadow min-h-12 border-2 border-border bg-moodi-sky px-6 py-2.5 font-pixelify text-base font-bold text-ink shadow-[2px_2px_0_var(--border)] hover:bg-moodi-sky/90"
             onClick={() => {
               setIsActive(true);
-              setPhaseIndex(0);
-              setSecondsInPhase(4);
+              setHasSaved(false);
             }}
             type="button"
           >
-            Mulai Bernapas ▶
+            Mulai Latihan Napas
           </button>
         ) : (
           <button
-            className="pixel-press min-h-12 border-2 border-border bg-background px-8 font-semibold text-foreground hover:bg-muted"
+            className="pixel-press pixel-shadow min-h-12 border-2 border-border bg-moodi-peach px-6 py-2.5 font-pixelify text-base font-bold text-ink shadow-[2px_2px_0_var(--border)] hover:bg-moodi-peach/90"
             onClick={handleStop}
             type="button"
           >
-            Jeda / Selesai ⏹
+            Selesai
           </button>
         )}
       </div>
@@ -193,41 +207,42 @@ function GroundingExercise() {
     {
       num: 5,
       title: "5 Hal yang Kamu Lihat",
-      prompt: "Lihat ke sekelilingmu. Sebutkan dalam hati 5 benda yang kamu lihat (misal: jam dinding, pensil, jendela, buku, lampu).",
-      icon: "👀",
+      prompt: "Lihat sekelilingmu. Sadari 5 benda yang kamu lihat (misalnya meja, pensil, jendela, buku, atau bayangan cahaya).",
+      icon: EyeIcon,
       color: "bg-moodi-sky/30",
     },
     {
       num: 4,
       title: "4 Hal yang Bisa Kamu Sentuh",
-      prompt: "Rasakan 4 sensasi fisik di tubuhmu saat ini (misal: telapak kaki di lantai, tekstur meja, kain bajumu, atau udara sejuk).",
-      icon: "✋",
+      prompt: "Rasakan 4 sensasi fisik di tubuhmu saat ini (telapak kaki di lantai, tekstur meja, kain pakaian, atau aliran udara).",
+      icon: HandIcon,
       color: "bg-moodi-butter/30",
     },
     {
       num: 3,
       title: "3 Suara yang Kamu Dengar",
-      prompt: "Dengarkan lingkunganmu. Kenali 3 suara di sekitarmu (misal: desau kipas angin, deru kendaraan jauh, detak jam).",
-      icon: "👂",
+      prompt: "Dengarkan lingkunganmu. Kenali 3 suara di sekitarmu (deru kipas angin, kendaraan di luar, atau helaan napasmu sendiri).",
+      icon: EarIcon,
       color: "bg-moodi-pink/30",
     },
     {
       num: 2,
       title: "2 Aroma yang Kamu Cium",
-      prompt: "Hiruplah udara di sekitarmu. Sadari 2 aroma di ruanganmu (misal: wangi buku, wangi pakaian, atau udara segar).",
-      icon: "👃",
+      prompt: "Hiruplah udara di sekitarmu. Sadari 2 aroma di ruanganmu (kertas buku, wangi pakaian, atau udara segar).",
+      icon: NoseIcon,
       color: "bg-moodi-peach/30",
     },
     {
       num: 1,
       title: "1 Rasa di Mulut atau Napas Dalam",
-      prompt: "Rasakan satu hal di indera pengecapmu (rasa air putih, atau ambil 1 tarikan napas paling dalam dan penuh).",
-      icon: "👅",
+      prompt: "Rasakan satu hal di indera pengecapmu (teguk air putih, atau ambil 1 tarikan napas paling dalam dan penuh).",
+      icon: TasteIcon,
       color: "bg-muted",
     },
   ];
 
   const current = steps[step - 1] ?? steps[0]!;
+  const StepIcon = current.icon;
 
   async function handleNext() {
     if (step < 5) {
@@ -243,57 +258,60 @@ function GroundingExercise() {
   }
 
   return (
-    <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-6">
+    <div className="pixel-shadow space-y-6 border-2 border-border bg-card p-6 sm:p-8">
       <div className="border-b border-border/40 pb-4">
         <h2 className="font-pixelify text-2xl font-bold">
           Teknik Grounding 5-4-3-2-1
         </h2>
-        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
           Latihan sensori sederhana untuk menarik pikiranmu kembali ke momen saat
-          ini saat dilanda kecemasan atau pikiran berlari.
+          ini saat cemas melanda.
         </p>
       </div>
 
       {!completed ? (
-        <div className={`border-2 border-border p-6 sm:p-8 space-y-5 ${current.color}`}>
+        <div className={`space-y-5 border-2 border-border p-5 sm:p-7 ${current.color}`}>
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{current.icon}</span>
+            <span className="grid size-10 place-items-center border-2 border-border bg-card text-foreground">
+              <StepIcon className="size-5" />
+            </span>
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Langkah {step} dari 5
               </span>
-              <h3 className="font-pixelify text-2xl font-bold text-foreground">
+              <h3 className="font-pixelify text-xl font-bold text-foreground sm:text-2xl">
                 {current.title}
               </h3>
             </div>
           </div>
 
-          <p className="text-sm sm:text-base leading-relaxed text-foreground">
+          <p className="text-sm leading-relaxed text-foreground sm:text-base">
             {current.prompt}
           </p>
 
           <div className="pt-2">
             <button
-              className="pixel-press pixel-shadow border-2 border-border bg-card px-6 py-2.5 font-bold text-foreground shadow-[2px_2px_0_var(--border)] hover:bg-muted"
+              className="pixel-press inline-flex min-h-11 items-center justify-center border-2 border-border bg-card px-5 py-2 text-xs font-bold text-foreground shadow-[2px_2px_0_var(--border)] hover:bg-muted sm:text-sm"
               onClick={handleNext}
               type="button"
             >
-              {step < 5 ? "Sudah, Lanjut ke Langkah Berikutnya →" : "Selesai Latihan Grounding ✓"}
+              <span>{step < 5 ? "Lanjut →" : "Selesai latihan"}</span>
             </button>
           </div>
         </div>
       ) : (
-        <div className="border-2 border-border bg-moodi-sky/30 p-8 text-center space-y-4">
-          <span className="text-4xl">🌱</span>
+        <div className="space-y-4 border-2 border-border bg-moodi-sky/30 p-6 text-center sm:p-8">
+          <div className="mx-auto grid size-12 place-items-center border-2 border-border bg-card">
+            <SproutIcon className="size-6 text-foreground" />
+          </div>
           <h3 className="font-pixelify text-2xl font-bold text-foreground">
-            Pikiranmu Sudah Lebih Hadir Saat Ini
+            Pikiranmu Sudah Lebih Hadir
           </h3>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Kamu baru saja menyadarkan tubuh dan pikiranmu. Beri apresiasi pada
-            dirimu karena telah meluangkan waktu sejenak.
+          <p className="mx-auto max-w-md text-sm text-muted-foreground">
+            Beri apresiasi pada dirimu karena telah meluangkan waktu untuk berhenti sejenak.
           </p>
           <button
-            className="pixel-press border-2 border-border bg-card px-5 py-2 text-xs font-bold"
+            className="pixel-press border-2 border-border bg-card px-4 py-2 text-xs font-bold"
             onClick={() => {
               setStep(1);
               setCompleted(false);
@@ -308,58 +326,52 @@ function GroundingExercise() {
   );
 }
 
-// 3. Pikiran vs Fakta (Reframing) Component with Gemini AI
+// 3. Reframing Component
 function ReframingCards() {
-  const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
-  const [inputThought, setInputThought] = useState("");
+  const [inputThought, setInputThought] = useState<string>("");
   const [aiResult, setAiResult] = useState<ReframedThoughtResult | null>(null);
-  const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
 
   const promptChips = [
-    "Takut nilaiku gak cukup buat jurusan impian",
-    "Waktu ujian makin dekat tapi masih belum siap",
-    "Ngerasa gak sepintar teman-teman sekelas",
-    "Takut bikin orang tua kecewa",
+    "Waktunya tinggal sedikit, aku pasti gagal",
+    "Skor tryout kemarin turun drastis",
+    "Semua temanku belajarnya lebih rajin",
   ];
 
   const presetCards = [
     {
-      thought: "Skor tryout-ku masih jauh dari target, aku pasti gagal UTBK.",
-      fact: "Tryout adalah alat uji dan diagnosis kelemahan materi hari ini, bukan ramalan masa depan. Menemukan kesalahan sekarang justru mencegahnya terjadi saat ujian asli.",
-      tip: "Fokus pada 1–2 topik terlemah tiap minggunya.",
+      thought: "Skor tryout kemarin turun, persiapan berbulan-bulan sia-sia.",
+      fact: "Skor tryout berfluktuasi sesuai tingkat kesulitan soal. Penurunan skor adalah penunjuk materi yang perlu diulang, bukan vonis kelulusan.",
+      tip: "Buka analisis kesalahan, pilih 2 soal yang konsepnya belum mantap.",
     },
     {
-      thought: "Orang lain belajar 10 jam tanpa henti, aku tertinggal jauh.",
-      fact: "Riset kognitif membuktikan bahwa belajar terarah 2–3 jam dengan tidur cukup jauh lebih efektif dalam menyimpan memori jangka panjang daripada begadang kelelahan.",
-      tip: "Kualitas dan konsistensi harian mengalahkan maraton panik.",
+      thought: "Teman-temanku belajarnya lebih banyak, aku sudah pasti tertinggal.",
+      fact: "Jam belajar panjang tidak selalu berarti paham. Belajar 1 jam yang fokus dan tenang jauh lebih efektif dibanding 4 jam dalam keadaan panik.",
+      tip: "Fokus pada progres harianmu sendiri, bukan media sosial orang lain.",
     },
     {
-      thought: "Mengambil hari istirahat membuatku membuang waktu percuma.",
-      fact: "Otak manusia membutuhkan fase istirahat dan tidur untuk konsolidasi memori. Mengistirahatkan pikiran tetap dihitung sebagai bagian dari konsistensi belajar.",
-      tip: "Istirahat terencana mencegah burnout fatal menjelang ujian.",
-    },
-    {
-      thought: "Aku selalu panik dan blank saat melihat soal yang panjang dan sulit.",
-      fact: "Rasa cemas adalah respons alami tubuh saat menghadapi tantangan. Kamu bisa mengambil jeda napas 30 detik, melewati soal tersebut, dan mengerjakannya nanti.",
-      tip: "Pilah soal mudah dulu untuk membangun rasa percaya diri.",
+      thought: "Kalau tidak lolos PTN impian, masa depanku hancur.",
+      fact: "Banyak jalan untuk membangun masa depan dan karier yang baik. UTBK adalah salah satu pintu, bukan penentu harga dirimu.",
+      tip: "Tarik napas dan ingat bahwa nilaimu sebagai manusia tidak diukur oleh sebuah skor.",
     },
   ];
 
-  function handleReframe(thoughtToProcess?: string) {
-    const target = (thoughtToProcess ?? inputThought).trim();
-    if (!target || isPending) return;
+  function handleReframe(customThought?: string) {
+    const textToReframe = customThought ?? inputThought;
+    if (!textToReframe.trim()) return;
 
     setErrorMessage(null);
     setSavedSuccess(false);
 
     startTransition(async () => {
-      const res = await reframeThoughtAction(target);
-      if (res.ok && res.data) {
+      const res = await reframeThoughtAction(textToReframe);
+      if (res.error) {
+        setErrorMessage(res.error);
+      } else if (res.data) {
         setAiResult(res.data);
-      } else {
-        setErrorMessage(res.error ?? "Gagal memproses reframing. Coba lagi.");
       }
     });
   }
@@ -369,49 +381,41 @@ function ReframingCards() {
     await saveCalmSessionAction({
       tool: "reframing",
       durationSeconds: 120,
-      note: `[Reframing AI] Pikiran: "${aiResult.thought}" -> Fakta: "${aiResult.fact}"`,
+      note: `Pikiran: "${aiResult.thought}" -> Fakta: "${aiResult.fact}"`,
     });
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* AI Reframing Interactive Section */}
-      <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-8 space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-4">
+      <div className="pixel-shadow space-y-5 border-2 border-border bg-card p-5 sm:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full border border-border bg-moodi-sky/30 px-2.5 py-0.5 text-xs font-bold text-foreground">
-                Reframing AI ✨
-              </span>
-              <span className="text-xs text-muted-foreground">Didukung Gemini</span>
-            </div>
-            <h2 className="mt-1 font-pixelify text-2xl font-bold text-foreground">
+            <h2 className="font-pixelify text-xl font-bold text-foreground sm:text-2xl">
               Bedah Pikiran yang Mengganggumu
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground max-w-sm">
-            Tuliskan rasa cemas atau takutmu. AI akan membantumu melihat sudut
-            pandang objektif yang lebih menenangkan.
+          <p className="max-w-sm text-xs text-muted-foreground">
+            Tuliskan rasa cemasmu. MOODI akan membantumu melihat sudut pandang objektif yang menenangkan.
           </p>
         </div>
 
         {/* Input & Prompt Chips */}
         <div className="space-y-3">
           <label
-            className="block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+            className="block text-xs font-bold text-muted-foreground"
             htmlFor="thought-input"
           >
             Apa yang sedang terlintas di pikiranmu saat ini?
           </label>
           <div className="relative">
             <textarea
-              className="w-full resize-none border-2 border-border bg-background p-4 text-sm text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-foreground"
+              className="w-full resize-none border-2 border-border bg-background p-3 text-sm text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-foreground"
               id="thought-input"
               maxLength={350}
               onChange={(e) => setInputThought(e.target.value)}
-              placeholder="Contoh: Rasanya aku nggak bakal lolos jurusan impian karena tryout kemarin masih jelek..."
+              placeholder="Contoh: Rasanya aku tidak bakal lolos karena tryout kemarin masih banyak yang salah..."
               rows={3}
               value={inputThought}
             />
@@ -427,7 +431,7 @@ function ReframingCards() {
             </span>
             {promptChips.map((chip) => (
               <button
-                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                className="border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
                 key={chip}
                 onClick={() => {
                   setInputThought(chip);
@@ -440,40 +444,41 @@ function ReframingCards() {
             ))}
           </div>
 
+          {/* Error Message: NO RED COLOR. Uses moodi-peach token */}
           {errorMessage && (
-            <div className="rounded-lg border border-red-500 bg-red-500/10 p-3 text-xs font-semibold text-red-600">
+            <div className="border-2 border-border bg-moodi-peach p-3 text-xs font-semibold text-ink">
               {errorMessage}
             </div>
           )}
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
-              className="pixel-press pixel-shadow border-2 border-border bg-moodi-sky px-6 py-2.5 font-bold text-ink shadow-[2px_2px_0_var(--border)] transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60"
+              className="pixel-press inline-flex min-h-11 items-center justify-center border-2 border-border bg-moodi-sky px-5 py-2 font-bold text-ink shadow-[2px_2px_0_var(--border)] disabled:opacity-60"
               disabled={isPending || !inputThought.trim()}
               onClick={() => handleReframe()}
               type="button"
             >
-              {isPending ? "Sedang Membedah Pikiran... ⏳" : "Bantu Aku Reframe Pikiran Ini ✨"}
+              {isPending ? "Memproses..." : "Bantu reframe"}
             </button>
           </div>
         </div>
 
         {/* AI Result Card */}
         {aiResult && (
-          <div className="mt-6 rounded-xl border-2 border-border bg-muted/30 p-5 sm:p-6 space-y-4 animate-in fade-in duration-300">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
-              <span className="rounded-md border border-border bg-moodi-sand/50 px-2.5 py-1 text-xs font-bold text-foreground">
-                🎯 Pola Pikir Terdeteksi: {aiResult.distortion}
+          <div className="space-y-4 border-2 border-border bg-muted/30 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
+              <span className="border border-border bg-card px-2 py-0.5 text-xs font-bold text-foreground">
+                Pola Pikir: {aiResult.distortion}
               </span>
-              <span className={`text-[11px] font-semibold ${aiResult.source === "gemini" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
-                {aiResult.source === "gemini" ? "✨ Didukung Gemini AI" : "🌱 Mode Refleksi Siaga"}
+              <span className="text-[11px] text-muted-foreground">
+                {aiResult.source === "gemini" ? "Didukung Gemini" : "Mode Refleksi Siaga"}
               </span>
             </div>
 
             {/* Validation Message */}
-            <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-xs font-bold text-moodi-pink uppercase tracking-wide">
-                💚 Validasi Perasaanmu:
+            <div className="border border-border bg-card p-3">
+              <p className="text-xs font-bold text-foreground">
+                Validasi:
               </p>
               <p className="mt-1 text-sm leading-relaxed text-foreground">
                 {aiResult.validation}
@@ -481,57 +486,57 @@ function ReframingCards() {
             </div>
 
             {/* Side-by-side: Thought vs Fact */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="rounded-lg border-2 border-border bg-background p-4 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  💭 Pikiran Awal yang Membuat Cemas
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-1.5 border-2 border-border bg-background p-3">
+                <span className="text-xs font-bold text-muted-foreground">
+                  Pikiran Awal
                 </span>
-                <p className="text-sm font-medium italic text-foreground/80 leading-relaxed">
+                <p className="text-sm italic leading-relaxed text-foreground/80">
                   &ldquo;{aiResult.thought}&rdquo;
                 </p>
               </div>
 
-              <div className="rounded-lg border-2 border-border bg-moodi-sky/30 p-4 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-ink">
-                  ✨ Fakta Objektif & Menenangkan
+              <div className="space-y-1.5 border-2 border-border bg-moodi-sky/30 p-3">
+                <span className="text-xs font-bold text-ink">
+                  Fakta Objektif
                 </span>
-                <p className="text-sm font-semibold text-foreground leading-relaxed">
+                <p className="text-sm font-semibold leading-relaxed text-foreground">
                   {aiResult.fact}
                 </p>
               </div>
             </div>
 
             {/* Small Action Step */}
-            <div className="rounded-lg border border-border bg-card p-4 flex items-start gap-3">
-              <span className="text-xl">💡</span>
-              <div className="space-y-1">
+            <div className="flex items-start gap-2.5 border border-border bg-card p-3">
+              <BulbIcon className="mt-0.5 size-4 shrink-0 text-foreground" />
+              <div className="space-y-0.5">
                 <span className="text-xs font-bold text-foreground">
-                  Langkah Kecil Hari Ini:
+                  Langkah Kecil:
                 </span>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   {aiResult.smallStep}
                 </p>
               </div>
             </div>
 
             {/* Footer action buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <button
-                className="rounded-lg border-2 border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-[1px_1px_0_var(--border)] hover:bg-muted"
+                className="pixel-press border-2 border-border bg-card px-3 py-1.5 text-xs font-bold text-foreground shadow-[1px_1px_0_var(--border)] hover:bg-muted"
                 onClick={handleSaveAiResult}
                 type="button"
               >
-                {savedSuccess ? "✓ Tersimpan di Sesi Tenang!" : "Simpan ke Catatan Tenang"}
+                {savedSuccess ? "Tersimpan di Catatan Tenang" : "Simpan ke Catatan Tenang"}
               </button>
               <button
-                className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                className="border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   setAiResult(null);
                   setInputThought("");
                 }}
                 type="button"
               >
-                Coba Pikiran Lain
+                Coba pikiran lain
               </button>
             </div>
           </div>
@@ -539,14 +544,13 @@ function ReframingCards() {
       </div>
 
       {/* Preset Inspirasi Cepat */}
-      <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-6">
-        <div className="border-b border-border/40 pb-4">
-          <h3 className="font-pixelify text-xl font-bold">
-            Kartu Inspirasi Cepat (Pikiran vs Fakta Umum)
+      <div className="pixel-shadow space-y-5 border-2 border-border bg-card p-5 sm:p-7">
+        <div className="border-b border-border/40 pb-3">
+          <h3 className="font-pixelify text-lg font-bold sm:text-xl">
+            Kartu Inspirasi Cepat (Pikiran vs Fakta)
           </h3>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-            Klik kartu di bawah untuk membalikkan rasa cemas yang paling sering
-            dialami pejuang UTBK.
+          <p className="mt-1 text-xs text-muted-foreground">
+            Pilih kartu di bawah untuk membalikkan rasa cemas yang umum dialami.
           </p>
         </div>
 
@@ -556,7 +560,7 @@ function ReframingCards() {
 
             return (
               <article
-                className={`pixel-shadow cursor-pointer border-2 border-border p-5 transition-all ${
+                className={`pixel-shadow cursor-pointer border-2 border-border p-4 transition-all ${
                   isFlipped ? "bg-moodi-sky/30" : "bg-background hover:bg-muted"
                 }`}
                 key={idx}
@@ -565,26 +569,26 @@ function ReframingCards() {
                 tabIndex={0}
               >
                 <div className="flex items-center justify-between border-b border-border/30 pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {isFlipped ? "✨ Fakta Nyata" : "💭 Pikiran Otomatis"}
+                  <span className="text-xs font-bold text-muted-foreground">
+                    {isFlipped ? "Fakta Nyata" : "Pikiran Otomatis"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {isFlipped ? "Klik untuk tutup" : "Klik untuk balik →"}
+                    {isFlipped ? "Tutup" : "Balik →"}
                   </span>
                 </div>
 
-                <div className="py-3 min-h-24">
+                <div className="min-h-20 py-2.5">
                   {!isFlipped ? (
-                    <p className="font-semibold text-foreground leading-relaxed text-sm sm:text-base">
+                    <p className="text-sm font-semibold leading-relaxed text-foreground">
                       &ldquo;{card.thought}&rdquo;
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      <p className="font-semibold text-foreground leading-relaxed text-sm sm:text-base">
+                      <p className="text-sm font-semibold leading-relaxed text-foreground">
                         {card.fact}
                       </p>
-                      <p className="text-xs font-medium text-muted-foreground border-t border-border/30 pt-2">
-                        💡 {card.tip}
+                      <p className="border-t border-border/30 pt-2 text-xs font-medium text-muted-foreground">
+                        {card.tip}
                       </p>
                     </div>
                   )}
@@ -620,42 +624,42 @@ function PrivateJournal() {
   }
 
   return (
-    <div className="pixel-shadow border-2 border-border bg-card p-6 sm:p-10 space-y-6">
-      <div className="border-b border-border/40 pb-4">
-        <h2 className="font-pixelify text-2xl font-bold">
+    <div className="pixel-shadow space-y-5 border-2 border-border bg-card p-5 sm:p-7">
+      <div className="border-b border-border/40 pb-3">
+        <h2 className="font-pixelify text-xl font-bold sm:text-2xl">
           Jurnal Singkat Pribadi
         </h2>
-        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          Tuliskan apa pun yang mengganjal di pikiranmu tanpa perlu khawatir dinilai
-          atau dihakimi.
+        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+          Tuliskan apa pun yang mengganjal di pikiranmu tanpa perlu khawatir dinilai.
         </p>
       </div>
 
       {saved && (
-        <div className="border-2 border-border bg-moodi-sky/30 p-3 text-xs font-semibold text-ink">
-          ✓ Catatan refleksimu telah tersimpan dengan aman.
+        <div className="inline-flex items-center gap-1.5 border-2 border-border bg-moodi-sky/30 p-2.5 text-xs font-semibold text-ink">
+          <CheckIcon className="size-3.5" />
+          <span>Catatan refleksimu telah tersimpan.</span>
         </div>
       )}
 
       <form className="space-y-4" onSubmit={handleSave}>
         <textarea
-          className="w-full border-2 border-border bg-background p-4 text-sm leading-relaxed text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full border-2 border-border bg-background p-3 text-sm leading-relaxed text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           onChange={(e) => {
             setNote(e.target.value);
             setSaved(false);
           }}
-          placeholder="Tuliskan unek-unek, ketakutan, atau apa yang ingin kamu lepaskan hari ini..."
+          placeholder="Tuliskan ketakutan, unek-unek, atau apa yang ingin kamu lepaskan hari ini..."
           rows={5}
           value={note}
         />
 
         <div className="flex justify-end">
           <button
-            className="pixel-press pixel-shadow border-2 border-border bg-moodi-butter px-6 py-2.5 font-bold text-ink shadow-[2px_2px_0_var(--border)] hover:bg-moodi-butter/90 disabled:opacity-50"
+            className="pixel-press inline-flex min-h-11 items-center justify-center border-2 border-border bg-moodi-butter px-5 py-2 font-bold text-ink shadow-[2px_2px_0_var(--border)] hover:bg-moodi-butter/90 disabled:opacity-50"
             disabled={isPending || !note.trim()}
             type="submit"
           >
-            {isPending ? "Menyimpan..." : "Simpan Catatan Tenang"}
+            {isPending ? "Menyimpan..." : "Simpan catatan"}
           </button>
         </div>
       </form>

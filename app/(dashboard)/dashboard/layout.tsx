@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HeartIcon } from "@/components/icons";
 import { getAuthSession } from "@/lib/auth-session";
 import { siteCopy } from "@/lib/copy/id";
 import { getUserRole } from "@/lib/user-role";
@@ -47,6 +48,14 @@ async function AuthenticatedDashboardLayout({
               {siteCopy.brand}
             </Link>
             <div className="ml-auto flex items-center gap-2 sm:gap-3">
+              <Link
+                aria-label="Bantuan & Dukungan"
+                className="pixel-press inline-flex size-9 items-center justify-center border-2 border-border bg-card text-foreground hover:bg-muted"
+                href="/dashboard/support"
+                title="Bantuan & Dukungan"
+              >
+                <HeartIcon className="size-4" />
+              </Link>
               <ThemeToggle />
               <SignOutButton />
             </div>

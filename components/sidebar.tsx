@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HeartIcon } from "@/components/icons";
 import { siteCopy } from "@/lib/copy/id";
 import type { UserRole } from "@/lib/user-role";
 
@@ -132,7 +133,7 @@ export function Sidebar({ role }: { role: UserRole }) {
             className="flex items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
             href="/dashboard/support"
           >
-            <span aria-hidden="true">💚</span>
+            <HeartIcon className="size-4 shrink-0 text-foreground" />
             <span>Bantuan & Dukungan</span>
           </Link>
           <ThemeToggle />

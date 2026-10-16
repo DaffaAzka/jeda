@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { siteCopy } from "@/lib/copy/id";
+import { Turnstile } from "@/components/turnstile";
 
 type AuthMode = "login" | "register";
 
@@ -12,17 +13,30 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const isRegister = mode === "register";
   const copy = siteCopy.auth;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    if (
+      process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY &&
+      !turnstileToken
+    ) {
+      setError("Silakan selesaikan verifikasi keamanan anti-bot terlebih dahulu.");
+      return;
+    }
+
     setPending(true);
 
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const fetchOptions = turnstileToken
+      ? { headers: { "x-captcha-response": turnstileToken } }
+      : undefined;
 
     try {
       if (isRegister) {
@@ -41,6 +55,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           email,
           password,
           callbackURL: "/dashboard",
+          fetchOptions,
         });
 
         if (result.error) {
@@ -52,6 +67,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           email,
           password,
           callbackURL: "/dashboard",
+          fetchOptions,
         });
 
         if (result.error) {
@@ -155,6 +171,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             />
           </div>
         )}
+
+        <Turnstile
+          onSuccess={(token) => setTurnstileToken(token)}
+          onExpire={() => setTurnstileToken("")}
+        />
 
         {error && (
           <p

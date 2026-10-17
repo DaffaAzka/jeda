@@ -23,7 +23,7 @@ export function getGeminiModel(): string {
   const model = process.env.GEMINI_MODEL?.trim();
   if (!model) {
     // Default model if GEMINI_MODEL not explicitly specified
-    return "gemini-2.5-flash";
+    return "gemini-3.8-flash";
   }
   return model;
 }

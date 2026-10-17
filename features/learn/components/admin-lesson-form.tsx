@@ -56,6 +56,8 @@ interface AdminLessonFormProps {
     estMinutes: number;
     content: SerializedEditorStateJson | string;
     checkQuestionIds: string[];
+    source?: string;
+    reviewedAt?: Date | null;
   };
   topicQuestions: Array<{
     id: string;
@@ -177,6 +179,18 @@ export function AdminLessonForm({
           </div>
         </div>
       </div>
+
+      {initialData?.source === "ai_assisted" && !initialData?.reviewedAt && (
+        <div className="border-2 border-border bg-moodi-butter/40 p-4 text-xs font-semibold text-ink flex items-start gap-3">
+          <span className="text-base">⚠️</span>
+          <div>
+            <p className="font-bold">Draf materi ini dibuat dengan bantuan AI (Gemini).</p>
+            <p className="mt-0.5 font-normal text-foreground">
+              Admin wajib memeriksa kebenaran konsep, rumus, dan latihan soal sebelum materi ini diterbitkan ke siswa.
+            </p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="border-2 border-border bg-moodi-peach/30 p-4 text-xs font-semibold text-ink">

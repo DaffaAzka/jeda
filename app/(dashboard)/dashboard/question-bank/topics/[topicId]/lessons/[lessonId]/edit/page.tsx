@@ -46,6 +46,8 @@ export default async function EditLessonPage({ params }: EditLessonPageProps) {
     estMinutes: lesson.estMinutes,
     content: lesson.content as SerializedEditorStateJson | string,
     checkQuestionIds: lesson.checkQuestions.map((cq) => cq.questionId),
+    source: lesson.source,
+    reviewedAt: lesson.reviewedAt,
   };
 
   return (

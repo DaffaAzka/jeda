@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
   toggleLessonPublishAction,
@@ -9,13 +9,13 @@ import {
 } from "@/features/learn/actions";
 import { siteCopy } from "@/lib/copy/id";
 import type { AdminLessonListItem } from "@/features/learn/types";
+import { AiDraftDialog } from "@/features/ai/components/ai-draft-dialog";
 
 interface AdminLessonsListProps {
   topicId: string;
   topicName: string;
   subtestName: string;
   lessons: AdminLessonListItem[];
-  onOpenAiModal?: () => void;
 }
 
 export function AdminLessonsList({
@@ -23,8 +23,8 @@ export function AdminLessonsList({
   topicName,
   subtestName,
   lessons,
-  onOpenAiModal,
 }: AdminLessonsListProps) {
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleTogglePublish(lessonId: string) {
@@ -74,15 +74,13 @@ export function AdminLessonsList({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {onOpenAiModal && (
-              <button
-                className="pixel-press inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky/30 px-4 text-xs font-bold text-ink hover:bg-moodi-sky/50"
-                onClick={onOpenAiModal}
-                type="button"
-              >
-                ✨ {siteCopy.questionBank.draftWithAi}
-              </button>
-            )}
+            <button
+              className="pixel-press inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky/30 px-4 text-xs font-bold text-ink hover:bg-moodi-sky/50"
+              onClick={() => setIsAiModalOpen(true)}
+              type="button"
+            >
+              ✨ {siteCopy.questionBank.draftWithAi}
+            </button>
 
             <Link
               className="pixel-press pixel-shadow inline-flex min-h-11 items-center border-2 border-border bg-moodi-sky px-4 text-xs font-bold text-ink hover:opacity-90"
@@ -250,6 +248,13 @@ export function AdminLessonsList({
           </table>
         </div>
       )}
+
+      <AiDraftDialog
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        topicId={topicId}
+        topicName={topicName}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { saveCalmSessionAction, reframeThoughtAction } from "../actions";
-import type { ReframedThoughtResult } from "@/lib/ai/gemini-reframe";
+import type { ReframedThoughtResult } from "@/lib/cbt/thought-reframe";
 import {
   BulbIcon,
   CheckIcon,
@@ -469,7 +469,7 @@ function ReframingCards() {
                 Pola Pikir: {aiResult.distortion}
               </span>
               <span className="text-[11px] text-muted-foreground">
-                {aiResult.source === "gemini" ? "Didukung Gemini" : "Mode Refleksi Siaga"}
+                Mode Refleksi Kognitif (Lokal)
               </span>
             </div>
 

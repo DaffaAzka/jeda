@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAuthSession } from "@/lib/auth-session";
 import type { CalmTool, CalmTrigger } from "@/app/generated/prisma/enums";
-import { reframeThoughtWithGemini, type ReframedThoughtResult } from "@/lib/ai/gemini-reframe";
+import { reframeThoughtLocally, type ReframedThoughtResult } from "@/lib/cbt/thought-reframe";
 
 export async function saveCalmSessionAction({
   tool,
@@ -64,7 +64,7 @@ export async function reframeThoughtAction(
   }
 
   try {
-    const result = await reframeThoughtWithGemini(clean);
+    const result = reframeThoughtLocally(clean);
     return { ok: true, data: result };
   } catch (err) {
     console.error("Reframing action error:", err);

@@ -13,6 +13,17 @@
   --link: #1d5bb5;
   --scene-sky: #9adcff;
   --scene-hill: #ff8aae;
+  --input: var(--border);
+  --accent: var(--muted);
+  --accent-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --ring: var(--link);
+  --radius: 0px;
   color-scheme: light;
 }
 
@@ -27,6 +38,17 @@
   --link: #9adcff;
   --scene-sky: #252d50;
   --scene-hill: #343c68;
+  --input: var(--border);
+  --accent: var(--muted);
+  --accent-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --ring: var(--link);
+  --radius: 0px;
   color-scheme: dark;
 }
 
@@ -41,6 +63,17 @@
   --link: #9adcff;
   --scene-sky: #050505;
   --scene-hill: #202020;
+  --input: var(--border);
+  --accent: var(--muted);
+  --accent-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --ring: var(--link);
+  --radius: 0px;
   color-scheme: dark;
 }
 
@@ -61,6 +94,20 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-link: var(--link);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-ring: var(--ring);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
   --color-moodi-sky: #9adcff;
   --color-moodi-butter: #fff89a;
   --color-moodi-peach: #ffb2a6;

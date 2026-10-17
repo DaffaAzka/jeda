@@ -18,6 +18,7 @@ import {
   type TopicInput,
 } from "@/features/question-bank/schemas";
 import type { ActionState, MutationConfig } from "@/features/question-bank/types";
+import { validateLexicalState } from "@/lib/editor/validate-lexical";
 
 const questionBankPath = "/dashboard/question-bank";
 const dashboardPath = "/dashboard";
@@ -26,6 +27,16 @@ const uuidPattern =
 
 class InputError extends Error {}
 class AuthorizationError extends Error {}
+
+function lexicalNodeHasContent(node: any): boolean {
+  if (!node || typeof node !== "object") return false;
+  if (typeof node.text === "string" && node.text.trim()) return true;
+  if (node.type === "equation" && typeof node.equation === "string" && node.equation.trim()) return true;
+  if (Array.isArray(node.children)) {
+    return node.children.some(lexicalNodeHasContent);
+  }
+  return false;
+}
 
 function editorDocumentHasContent(node: JSONContent): boolean {
   if (node.type === "text" && node.text?.trim()) return true;
@@ -227,10 +238,10 @@ function readEditorDocument(
   formData: FormData,
   name: string,
   requiredMessage?: string,
-): JSONContent {
+): unknown {
   const rawValue = readString(formData, name);
 
-  if (rawValue.length > 20000) {
+  if (rawValue.length > 50000) {
     throw new InputError(siteCopy.questionBank.invalidContent);
   }
 
@@ -243,6 +254,19 @@ function readEditorDocument(
         type: "doc",
         content: [{ type: "paragraph", content: [{ type: "text", text: rawValue }] }],
       };
+    }
+  }
+
+  // Support and validate Lexical state
+  if (parsed && typeof parsed === "object" && "root" in parsed) {
+    try {
+      const validated = validateLexicalState(parsed);
+      if (!lexicalNodeHasContent(validated.root)) {
+        if (requiredMessage) throw new InputError(requiredMessage);
+      }
+      return validated;
+    } catch (err: any) {
+      throw new InputError(err.message ?? siteCopy.questionBank.invalidContent);
     }
   }
 
@@ -278,10 +302,31 @@ function parseQuestionOptions(rawValue: string): QuestionOptionInput[] {
     }
 
     const rawOption = option as Record<string, unknown>;
-    const content = parseEditorNode(rawOption.content);
+    let content = rawOption.content;
+    if (typeof content === "string") {
+      try {
+        content = JSON.parse(content);
+      } catch {
+        // preserve as string
+      }
+    }
 
-    if (content.type !== "doc" || !editorDocumentHasContent(content)) {
-      throw new InputError(siteCopy.questionBank.invalidOptions);
+    if (content && typeof content === "object" && "root" in content) {
+      try {
+        const validated = validateLexicalState(content);
+        if (!lexicalNodeHasContent(validated.root)) {
+          throw new InputError(siteCopy.questionBank.invalidOptions);
+        }
+        content = validated;
+      } catch {
+        throw new InputError(siteCopy.questionBank.invalidOptions);
+      }
+    } else {
+      const parsedContent = parseEditorNode(content);
+      if (parsedContent.type !== "doc" || !editorDocumentHasContent(parsedContent)) {
+        throw new InputError(siteCopy.questionBank.invalidOptions);
+      }
+      content = parsedContent;
     }
 
     const isCorrect = rawOption.isCorrect === true;

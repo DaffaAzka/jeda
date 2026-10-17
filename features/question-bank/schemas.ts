@@ -1,4 +1,3 @@
-import type { JSONContent } from "@tiptap/core";
 import { z } from "zod";
 import { siteCopy } from "@/lib/copy/id";
 
@@ -34,7 +33,7 @@ export const topicInputSchema = z.object({
 
 export const questionOptionInputSchema = z.object({
   id: uuidSchema.optional(),
-  content: z.custom<JSONContent>(),
+  content: z.custom<unknown>(),
   isCorrect: z.boolean(),
 });
 
@@ -42,13 +41,13 @@ export const questionInputSchema = z.object({
   id: uuidSchema.nullable(),
   topicId: uuidSchema,
   difficulty: z.number().int().min(1).max(5),
-  stem: z.custom<JSONContent>(),
+  stem: z.custom<unknown>(),
   imageUrl: z
     .string()
     .url(copy.invalidImageUrl)
     .refine((value) => value.startsWith("https://"), copy.invalidImageUrl)
     .nullable(),
-  explanation: z.custom<JSONContent>(),
+  explanation: z.custom<unknown>(),
   expectedSeconds: z.number().int().min(1).max(3600),
   isPublished: z.boolean(),
   options: z.array(questionOptionInputSchema).min(2).max(5),

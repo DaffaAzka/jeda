@@ -134,4 +134,27 @@ describe("Plan Generator: generateDailyPlanTasks", () => {
     expect(tasks.some((t) => t.type === "review")).toBe(true);
     expect(tasks.some((t) => t.type === "practice")).toBe(true);
   });
+
+  it("prioritizes short lesson (<= shortLessonMinutes) in recovery mode", () => {
+    const candidateLessons = [
+      { id: "les-long", title: "Materi Panjang", topicId: "top-1", estMinutes: 25 },
+      { id: "les-short", title: "Materi Singkat", topicId: "top-1", estMinutes: 8 },
+    ];
+    const tasks = generateDailyPlanTasks("recovery", topics, candidateLessons);
+    expect(tasks).toHaveLength(3);
+    expect(tasks[0]?.type).toBe("lesson");
+    expect(tasks[0]?.lessonId).toBe("les-short");
+    expect(tasks[0]?.estMinutes).toBe(8);
+  });
+
+  it("assigns lesson task for lowest accuracy topic in balanced mode", () => {
+    const candidateLessons = [
+      { id: "les-1", title: "Konsep Logika Proposisi", topicId: "top-1", estMinutes: 12 },
+    ];
+    const tasks = generateDailyPlanTasks("balanced", topics, candidateLessons);
+    expect(tasks).toHaveLength(3);
+    expect(tasks[0]?.type).toBe("lesson");
+    expect(tasks[0]?.lessonId).toBe("les-1");
+    expect(tasks[0]?.title).toContain("Konsep Logika Proposisi");
+  });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { deleteTopic, saveTopic } from "@/features/question-bank/actions";
 import type { TopicManagerData } from "@/features/question-bank/queries";
 import { siteCopy } from "@/lib/copy/id";
@@ -157,6 +158,12 @@ export function TopicsManager({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <Link
+                        className="inline-flex min-h-9 items-center border-2 border-border bg-background px-3 text-xs font-semibold hover:bg-muted"
+                        href={`/dashboard/question-bank/topics/${topic.id}/lessons`}
+                      >
+                        Materi
+                      </Link>
                       <CrudModal
                         title={copy.editTopic}
                         triggerClassName="inline-flex min-h-9 items-center border-2 border-border px-3 text-xs font-semibold hover:bg-muted"

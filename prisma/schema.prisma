@@ -50,6 +50,7 @@ enum TaskType {
   review
   practice
   tryout
+  lesson
   rest
   calm
 
@@ -98,6 +99,41 @@ enum ResourceType {
   @@map("resource_type")
 }
 
+enum ContentStatus {
+  draft
+  published
+
+  @@map("content_status")
+}
+
+enum ContentSource {
+  manual
+  ai_assisted
+
+  @@map("content_source")
+}
+
+enum LessonProgressStatus {
+  in_progress
+  completed
+
+  @@map("lesson_progress_status")
+}
+
+enum AiGenerationKind {
+  lesson_draft
+  question_set
+
+  @@map("ai_generation_kind")
+}
+
+enum AiGenerationStatus {
+  succeeded
+  failed
+
+  @@map("ai_generation_status")
+}
+
 model User {
   id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String          @db.VarChar(100)
@@ -116,6 +152,8 @@ model User {
   dailyPlans     DailyPlan[]
   calmSessions   CalmSession[]
   supportEvents  SupportEvent[]
+  lessonProgress LessonProgress[]
+  aiGenerations  AiGeneration[]
 
   @@map("users")
 }
@@ -151,10 +189,12 @@ model Topic {
   subtestId  String      @map("subtest_id") @db.Uuid
   name       String      @db.VarChar(150)
   subtest    Subtest     @relation(fields: [subtestId], references: [id], onDelete: Cascade)
-  questions  Question[]
-  topicStats TopicStat[]
-  planTasks  PlanTask[]
+  questions      Question[]
+  topicStats     TopicStat[]
+  planTasks      PlanTask[]
   tryoutSessions TryoutSession[]
+  lessons        Lesson[]
+  aiGenerations  AiGeneration[]
 
   @@unique([subtestId, name])
   @@map("topics")
@@ -169,11 +209,14 @@ model Question {
   explanation     String?          @db.Text
   expectedSeconds Int              @default(90) @map("expected_seconds")
   isPublished     Boolean          @default(false) @map("is_published")
+  source          ContentSource    @default(manual)
+  reviewedAt      DateTime?        @map("reviewed_at") @db.Timestamptz(6)
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   topic           Topic            @relation(fields: [topicId], references: [id], onDelete: Restrict)
   options         QuestionOption[]
   sessionAnswers  SessionAnswer[]
+  lessonLinks     LessonQuestion[]
 
   @@index([topicId, isPublished, difficulty])
   @@map("questions")
@@ -293,8 +336,10 @@ model PlanTask {
   estMinutes     Int             @default(15) @map("est_minutes")
   status         TaskStatus      @default(pending)
   sortOrder      Int             @default(0) @map("sort_order") @db.SmallInt
+  lessonId       String?         @map("lesson_id") @db.Uuid
   dailyPlan      DailyPlan       @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
   topic          Topic?          @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  lesson         Lesson?         @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   tryoutSessions TryoutSession[]
 
   @@map("plan_tasks")
@@ -387,4 +432,75 @@ model Verification {
 
   @@index([identifier])
   @@map("verifications")
+}
+
+model Lesson {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topicId        String           @map("topic_id") @db.Uuid
+  title          String           @db.VarChar(160)
+  summary        String?          @db.VarChar(280)
+  content        Json             @db.JsonB
+  estMinutes     Int              @default(10) @map("est_minutes")
+  sortOrder      Int              @default(0) @map("sort_order") @db.SmallInt
+  status         ContentStatus    @default(draft)
+  source         ContentSource    @default(manual)
+  reviewedAt     DateTime?        @map("reviewed_at") @db.Timestamptz(6)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  topic          Topic            @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  checkQuestions LessonQuestion[]
+  progress       LessonProgress[]
+  planTasks      PlanTask[]
+
+  @@index([topicId, status, sortOrder])
+  @@map("lessons")
+}
+
+model LessonQuestion {
+  lessonId   String   @map("lesson_id") @db.Uuid
+  questionId String   @map("question_id") @db.Uuid
+  sortOrder  Int      @default(0) @map("sort_order") @db.SmallInt
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([lessonId, questionId])
+  @@index([questionId])
+  @@map("lesson_questions")
+}
+
+model LessonProgress {
+  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String               @map("user_id") @db.Uuid
+  lessonId      String               @map("lesson_id") @db.Uuid
+  status        LessonProgressStatus @default(in_progress)
+  checkCorrect  Int?                 @map("check_correct") @db.SmallInt
+  checkTotal    Int?                 @map("check_total") @db.SmallInt
+  firstViewedAt DateTime             @default(now()) @map("first_viewed_at") @db.Timestamptz(6)
+  lastViewedAt  DateTime             @default(now()) @map("last_viewed_at") @db.Timestamptz(6)
+  completedAt   DateTime?            @map("completed_at") @db.Timestamptz(6)
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson        Lesson               @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId, lastViewedAt])
+  @@map("lesson_progress")
+}
+
+model AiGeneration {
+  id           String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String             @map("user_id") @db.Uuid
+  topicId      String?            @map("topic_id") @db.Uuid
+  kind         AiGenerationKind
+  status       AiGenerationStatus
+  model        String             @db.VarChar(80)
+  params       Json?              @db.JsonB
+  inputTokens  Int?               @map("input_tokens")
+  outputTokens Int?               @map("output_tokens")
+  errorCode    String?            @map("error_code") @db.VarChar(60)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic        Topic?             @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("ai_generations")
 }

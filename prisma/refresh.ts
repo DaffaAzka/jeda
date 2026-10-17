@@ -11,7 +11,8 @@ if (!databaseUrl) {
 const adapter = new PrismaPg({ connectionString: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
-function getTargetHost(urlStr: string): string {
+function getTargetHost(urlStr?: string): string {
+  if (!urlStr) return "unknown-host";
   try {
     const parsed = new URL(urlStr);
     return parsed.host || parsed.hostname;

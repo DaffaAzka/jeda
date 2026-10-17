@@ -368,6 +368,7 @@ export function RichTextView({ content, className = "", isLesson = false }: Rich
   if (!content) return null;
 
   let state: SerializedEditorStateJson | null = null;
+  let isLegacy = false;
 
   if (typeof content === "object" && content !== null && "root" in content) {
     state = content as SerializedEditorStateJson;
@@ -377,19 +378,19 @@ export function RichTextView({ content, className = "", isLesson = false }: Rich
       if (parsed && typeof parsed === "object" && "root" in parsed) {
         state = parsed as SerializedEditorStateJson;
       } else {
-        return (
-          <div className={`rich-text-view ${className}`}>
-            {renderLegacyContent(content, "legacy")}
-          </div>
-        );
+        isLegacy = true;
       }
     } catch {
-      return (
-        <div className={`rich-text-view ${className}`}>
-          {renderLegacyContent(content, "legacy")}
-        </div>
-      );
+      isLegacy = true;
     }
+  }
+
+  if (isLegacy && typeof content === "string") {
+    return (
+      <div className={`rich-text-view ${className}`}>
+        {renderLegacyContent(content, "legacy")}
+      </div>
+    );
   }
 
   if (!state || !state.root) return null;

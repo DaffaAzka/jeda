@@ -98,7 +98,7 @@ export function StudyHub({ data }: StudyHubProps) {
                   </h3>
                   {rec.reason && (
                     <p className="border-l-2 border-border pl-2 text-xs italic text-muted-foreground">
-                      "{rec.reason}"
+                      &ldquo;{rec.reason}&rdquo;
                     </p>
                   )}
                 </div>

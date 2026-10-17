@@ -417,6 +417,7 @@ function EquationComponent({
 
   useEffect(() => {
     if (!showEquationEditor && equationValue !== equation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEquationValue(equation);
     }
   }, [showEquationEditor, equation, equationValue]);

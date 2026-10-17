@@ -1,22 +1,91 @@
-# Jeda
+# MOODI (Jeda)
 
-Platform persiapan UTBK dengan dukungan wellbeing, dibangun menggunakan Next.js, PostgreSQL, Prisma, dan Better Auth.
+Platform persiapan UTBK terintegrasi dengan dukungan adaptif *wellbeing*, dibangun menggunakan Next.js 16 (App Router), PostgreSQL, Prisma v7, Better Auth v1, Lexical Editor, dan Google Gemini API (khusus pembuatan draf admin).
 
-## Menyiapkan database dan autentikasi
+MOODI mendukung pencapaian **SDG 3** (Target 3.4: Kesehatan Mental & Kesejahteraan) dan **SDG 4** (Target 4.3 & 4.5: Akses Pendidikan Tinggi yang Setara).
 
-1. Siapkan PostgreSQL, lalu salin `.env.example` menjadi `.env` dan sesuaikan `DATABASE_URL`.
-2. Isi `BETTER_AUTH_SECRET` dengan secret acak minimal 32 karakter dan `BETTER_AUTH_URL` dengan URL aplikasi (misalnya `http://localhost:3000`).
-3. Generate Prisma Client dan terapkan migrasi:
+---
 
+## 🌟 Fitur Utama
+
+1. **Beranda & Rencana Adaptif Harian:**
+   - Check-in kondisi 30 detik (tidur, energi, suasana hati, stres).
+   - Mesin aturan (*rule engine*) transparan yang menentukan mode harian (`recovery`, `balanced`, `challenge`) beserta kalimat penjelasan "kenapa" yang dapat dipertanggungjawabkan.
+2. **Modul Belajar (Materi & Cek Pemahaman):**
+   - Struktur kurikulum UTBK: Subtes → Topik → Materi (*Lesson*).
+   - Pembaca materi ringan berbasis Server Component dengan rendering rumus matematika LaTeX via KaTeX (`trust: false`).
+   - Latihan interaktif "Cek Pemahaman" (3-5 soal) dengan umpan balik langsung tanpa tekanan nilai atau perankingan.
+   - **Pemisahan tegas:** Modul Belajar tidak pernah membuat `TryoutSession`, sehingga progres belajar murni tidak mengontaminasi peta penguasaan (*mastery map*) tryout.
+3. **Tryout & Graded Exposure:**
+   - Tiga tingkat paparan: Santai (*relaxed*), Latihan Waktu (*timed*), dan Simulasi Penuh (*full simulation*).
+   - Tombol darurat relaksasi **"Napas dulu"** yang selalu dapat diakses.
+   - Tab latihan mandiri per topik.
+4. **Error Autopsy:**
+   - Identifikasi penyebab salah di setiap tryout (*did not know*, *out of time*, *panic*, *careless*) dengan saran otomatis sistem dan konfirmasi siswa.
+5. **Dashboard Insight:**
+   - Korelasi mingguan antara pola tidur/stres dengan akurasi pengerjaan.
+   - Peta penguasaan topik (*mastery map*) dan distribusi kesalahan.
+6. **Ruang Tenang (Calm Room):**
+   - Animasi pernapasan kotak 4-4-4-4 (*box breathing*), daftar periksa *grounding* 5-4-3-2-1, dan jurnal refleksi pribadi.
+   - Reframing kognitif ("Pikiran vs Fakta") dihitung **100% secara lokal** di sisi klien/server tanpa mengirim pemikiran siswa ke LLM.
+7. **Authoring Draf Berbasis AI untuk Admin:**
+   - Pembuatan draf materi dan soal baru berbantukan Google Gemini SDK (`@google/genai`) dengan *read-only tool calling* (`get_topic_context`, `list_existing_question_stems`, `get_format_rules`).
+   - Output terstruktur yang divalidasi ketat oleh Zod dan dikonversi ke AST Lexical.
+   - **Prinsip Human-in-the-Loop:** Semua konten AI selalu berstatus draf (`isPublished: false`) dan wajib ditinjau serta diverifikasi oleh admin sebelum diterbitkan.
+8. **Editor Rich Text Lexical:**
+   - Editor modern untuk admin dengan dukungan heading, list, quote, code block, tabel, collapsible hint, persamaan LaTeX, dan shortcut markdown.
+
+---
+
+## 🔒 Privasi & Keamanan Data Siswa
+
+- **Zero Student Data to LLM:** Data check-in, catatan jurnal, sesi ruang tenang, dan jawaban tryout siswa **TIDAK PERNAH** dikirim ke model AI eksternal mana pun.
+- **Persetujuan Eksplisit (*Consent-gated*):** Data sensitif *wellbeing* hanya disimpan jika siswa memberikan persetujuan saat onboarding.
+- **Bukan Pengganti Medis:** Hasil check-in tidak memuat label klinis atau diagnosis.
+
+---
+
+## 🚀 Memulai Aplikasi Secara Lokal
+
+### 1. Konfigurasi Lingkungan (.env)
+Salin `.env.example` ke `.env` dan sesuaikan nilainya:
 ```bash
-npm run db:generate
-npm run db:migrate
+cp .env.example .env
 ```
 
-Skema lengkap Jeda dan tabel Better Auth ada di `prisma/schema.prisma`.
-Kredensial email/password Better Auth tersimpan sebagai hash di `accounts.password`; aplikasi tidak menyimpan password plaintext maupun kolom hash duplikat.
+Pastikan variabel berikut terisi:
+- `DATABASE_URL`: URL PostgreSQL (Neon / Supabase / lokal).
+- `BETTER_AUTH_SECRET`: String rahasia minimal 32 karakter.
+- `BETTER_AUTH_URL`: URL aplikasi (misal `http://localhost:3000`).
+- `GEMINI_API_KEY` & `GEMINI_MODEL`: Kunci API Google AI Studio (opsional untuk admin authoring).
+- `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_DEMO_PASSWORD`: Kredensial akun demo.
 
-Endpoint Better Auth tersedia di `/api/auth/[...all]`. Jalankan aplikasi lokal dengan `npm run dev`.
+### 2. Migrasi Database & Seeding
+```bash
+# Generate Prisma Client
+npm run db:generate
+
+# Jalankan migrasi schema
+npm run db:migrate
+
+# Jalankan seeder idempoten (membuat akun admin, akun demo, kurikulum UTBK, 42 soal, materi, dan riwayat 14 hari)
+npm run db:seed
+```
+
+### 3. Reset & Refresh Data Demo
+Jika ingin mengembalikan akun siswa demo ke kondisi awal tanpa menghapus bank soal dan materi:
+```bash
+npm run db:refresh
+```
+
+### 4. Menjalankan Server Pengembangan & Pengujian
+```bash
+# Jalankan dev server
+npm run dev
+
+# Jalankan rangkaian tes unit
+npm run test
+```
 
 ---
 

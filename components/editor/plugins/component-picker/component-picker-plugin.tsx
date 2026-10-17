@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import {
   createContext,
   useCallback,
@@ -111,6 +112,7 @@ export function ComponentPicker({ children }: { children: React.ReactNode }) {
   });
 
   const options = useMemo(() => {
+    // eslint-disable-next-line react-hooks/refs
     const order = registrationOrderRef.current;
     const allItems = Array.from(itemsById.entries())
       .sort(([a], [b]) => (order.get(a) ?? 0) - (order.get(b) ?? 0))

@@ -64,8 +64,9 @@ export function SessionRunner({
     return idx >= 0 ? idx : 0;
   }, [questions, initialAnswers]);
 
-  const [currentIndex, setCurrentIndex] =
-    useState<number>(initialUnansweredIndex);
+  const [currentIndex, setCurrentIndex] = useState<number>(
+    initialUnansweredIndex,
+  );
   const [isNavOpenMobile, setIsNavOpenMobile] = useState<boolean>(false);
   const [isPanicOpen, setIsPanicOpen] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
@@ -177,7 +178,7 @@ export function SessionRunner({
           <Link
             className="pixel-press inline-flex items-center gap-1.5 border border-border bg-background px-3 py-1 text-xs font-semibold hover:bg-muted"
             href="/dashboard">
-            ← {siteCopy.practice.leaveForNow}
+            ←
           </Link>
           <div className="hidden sm:block min-w-0">
             <p className="truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -188,10 +189,6 @@ export function SessionRunner({
 
         {/* Center Progress & Timer */}
         <div className="flex items-center gap-3">
-          <div className="text-xs font-semibold sm:text-sm">
-            {siteCopy.practice.questionNumber} {currentIndex + 1} /{" "}
-            {questions.length}
-          </div>
           <div className="hidden lg:block">
             <SessionTimer
               endsAt={endsAtState}
@@ -204,22 +201,20 @@ export function SessionRunner({
 
         {/* Right Nav toggle & Panic for Mobile */}
         <div className="flex items-center gap-1.5 lg:hidden">
-          <button
+          {/* <button
             aria-label={siteCopy.practice.panicButton}
             className="pixel-press flex items-center gap-1 border-2 border-border bg-moodi-peach px-2 py-1 text-xs font-bold text-ink"
             onClick={() => setIsPanicOpen(true)}
-            type="button"
-          >
+            type="button">
             <SproutIcon className="size-3.5" />
             <span>Napas</span>
-          </button>
+          </button> */}
 
           <button
             aria-label={siteCopy.practice.questionNavigator}
-            className="pixel-press flex items-center gap-1 border border-border px-2.5 py-1 text-xs font-semibold"
+            className="pixel-press flex items-center gap-1 border border-border px-2.5 py-2 text-xs font-semibold"
             onClick={() => setIsNavOpenMobile(true)}
-            type="button"
-          >
+            type="button">
             <span>Soal</span>
             <span className="font-mono">
               ({answeredIndices.size}/{questions.length})
@@ -313,11 +308,9 @@ export function SessionRunner({
               }`}>
               <div className="flex items-center gap-2 font-bold text-sm">
                 <span>
-                  {currentImmediateFeedback.isCorrect ? (
+                  {currentImmediateFeedback.isCorrect ?
                     <CheckIcon className="size-4" />
-                  ) : (
-                    <InfoIcon className="size-4" />
-                  )}
+                  : <InfoIcon className="size-4" />}
                 </span>
                 <span>
                   {currentImmediateFeedback.isCorrect ?
@@ -364,56 +357,43 @@ export function SessionRunner({
           ← {siteCopy.practice.previousQuestion}
         </button>
 
+        <div className="text-xs font-semibold sm:text-sm lg:hidden">
+          {currentIndex + 1} / {questions.length}
+        </div>
+
         <div className="flex items-center gap-3">
           {!isAllAnswered && (
             <span className="hidden sm:inline-flex items-center gap-1.5 border border-border bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-              <span>{answeredIndices.size}/{questions.length} terjawab</span>
+              <span>
+                {answeredIndices.size}/{questions.length} terjawab
+              </span>
               <span className="text-[10px]">({unansweredCount} belum)</span>
             </span>
           )}
 
-          {isLastQuestion ? (
+          {isLastQuestion ?
             <button
               className={`inline-flex min-h-11 items-center border-2 border-border px-5 text-xs sm:text-sm font-bold transition-all ${
-                isAllAnswered
-                  ? "pixel-press pixel-shadow bg-moodi-sky text-ink hover:bg-moodi-sky/90"
-                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60"
+                isAllAnswered ?
+                  "pixel-press pixel-shadow bg-moodi-sky text-ink hover:bg-moodi-sky/90"
+                : "cursor-not-allowed bg-muted text-muted-foreground opacity-60"
               }`}
               disabled={!isAllAnswered}
               onClick={() => isAllAnswered && setShowFinishConfirm(true)}
               title={
-                isAllAnswered
-                  ? "Selesaikan sesi sekarang"
-                  : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
+                isAllAnswered ?
+                  "Selesaikan sesi sekarang"
+                : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
               }
               type="button">
-              {isAllAnswered ? (
+              {isAllAnswered ?
                 <span className="inline-flex items-center gap-1.5">
                   <span>{siteCopy.practice.finish}</span>
                   <CheckIcon className="size-3.5" />
                 </span>
-              ) : (
-                `Belum lengkap (${answeredIndices.size}/${questions.length})`
-              )}
+              : `Belum lengkap (${answeredIndices.size}/${questions.length})`}
             </button>
-          ) : (
-            <button
-              className={`inline-flex min-h-10 items-center border-2 border-border px-4 text-xs sm:text-sm font-semibold transition-all ${
-                isAllAnswered
-                  ? "pixel-press bg-background text-foreground hover:bg-muted"
-                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60"
-              }`}
-              disabled={!isAllAnswered}
-              onClick={() => isAllAnswered && setShowFinishConfirm(true)}
-              title={
-                isAllAnswered
-                  ? "Selesaikan sesi sekarang"
-                  : `Jawab semua soal terlebih dahulu (${unansweredCount} soal belum dijawab)`
-              }
-              type="button">
-              {siteCopy.practice.finish}
-            </button>
-          )}
+          : <></>}
 
           {!isLastQuestion && (
             <button
@@ -448,24 +428,27 @@ export function SessionRunner({
             <h3
               className="font-pixelify text-xl font-bold text-foreground"
               id="confirm-finish-title">
-              {isAllAnswered
-                ? siteCopy.practice.finishConfirmTitle
-                : "Belum Bisa Menyelesaikan"}
+              {isAllAnswered ?
+                siteCopy.practice.finishConfirmTitle
+              : "Belum Bisa Menyelesaikan"}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {isAllAnswered
-                ? siteCopy.practice.finishConfirmAllAnswered
-                : `Masih ada ${unansweredCount} soal yang belum dijawab. Seluruh soal harus dijawab sebelum sesi dapat diselesaikan.`}
+              {isAllAnswered ?
+                siteCopy.practice.finishConfirmAllAnswered
+              : `Masih ada ${unansweredCount} soal yang belum dijawab. Seluruh soal harus dijawab sebelum sesi dapat diselesaikan.`
+              }
             </p>
             <div className="flex gap-3 pt-2">
-              {isAllAnswered ? (
+              {isAllAnswered ?
                 <>
                   <button
                     className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink disabled:opacity-60"
                     disabled={isFinishing}
                     onClick={() => handleFinalize()}
                     type="button">
-                    {isFinishing ? "Menyelesaikan..." : siteCopy.practice.finishNow}
+                    {isFinishing ?
+                      "Menyelesaikan..."
+                    : siteCopy.practice.finishNow}
                   </button>
                   <button
                     className="pixel-press min-h-12 border-2 border-border px-4 font-semibold hover:bg-muted"
@@ -475,8 +458,7 @@ export function SessionRunner({
                     {siteCopy.practice.cancel}
                   </button>
                 </>
-              ) : (
-                <>
+              : <>
                   <button
                     className="pixel-press pixel-shadow min-h-12 flex-1 border-2 border-border bg-moodi-sky px-4 font-semibold text-ink"
                     onClick={() => {
@@ -495,7 +477,7 @@ export function SessionRunner({
                     Tutup
                   </button>
                 </>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -518,9 +500,10 @@ export function SessionRunner({
               {siteCopy.practice.softTimerEnd}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {!isAllAnswered
-                ? `Waktu batas telah habis, tetapi masih ada ${unansweredCount} soal yang belum dijawab. Silakan lengkapi sisa soal terlebih dahulu untuk menyelesaikan sesi.`
-                : "Semua soal telah terjawab. Kamu dapat langsung menyelesaikan sesi untuk melihat hasil dan pembahasan."}
+              {!isAllAnswered ?
+                `Waktu batas telah habis, tetapi masih ada ${unansweredCount} soal yang belum dijawab. Silakan lengkapi sisa soal terlebih dahulu untuk menyelesaikan sesi.`
+              : "Semua soal telah terjawab. Kamu dapat langsung menyelesaikan sesi untuk melihat hasil dan pembahasan."
+              }
             </p>
             <div className="flex gap-3 pt-2">
               <button
@@ -532,18 +515,22 @@ export function SessionRunner({
                   }
                 }}
                 type="button">
-                {isAllAnswered ? siteCopy.practice.continuePractice : "Lengkapi Sisa Soal →"}
+                {isAllAnswered ?
+                  siteCopy.practice.continuePractice
+                : "Lengkapi Sisa Soal →"}
               </button>
               <button
                 className={`min-h-12 border-2 border-border px-4 font-semibold transition-all ${
-                  isAllAnswered
-                    ? "pixel-press bg-background hover:bg-muted text-foreground"
-                    : "cursor-not-allowed bg-muted text-muted-foreground opacity-50"
+                  isAllAnswered ?
+                    "pixel-press bg-background hover:bg-muted text-foreground"
+                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-50"
                 }`}
                 disabled={!isAllAnswered || isFinishing}
                 onClick={() => isAllAnswered && handleFinalize()}
                 type="button">
-                {isAllAnswered ? siteCopy.practice.finish : `Selesai (${answeredIndices.size}/${questions.length})`}
+                {isAllAnswered ?
+                  siteCopy.practice.finish
+                : `Selesai (${answeredIndices.size}/${questions.length})`}
               </button>
             </div>
           </div>

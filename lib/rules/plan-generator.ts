@@ -1,4 +1,5 @@
 import type { DayMode, TaskType } from "@/app/generated/prisma/enums";
+import { RULES } from "@/config/rules";
 
 export interface TopicCandidate {
   id: string;
@@ -8,6 +9,14 @@ export interface TopicCandidate {
   accuracy?: number;
 }
 
+export interface LessonCandidate {
+  id: string;
+  title: string;
+  topicId: string;
+  topicName?: string;
+  estMinutes: number;
+}
+
 export interface GeneratedPlanTask {
   type: TaskType;
   title: string;
@@ -15,27 +24,49 @@ export interface GeneratedPlanTask {
   estMinutes: number;
   sortOrder: number;
   topicId?: string;
+  lessonId?: string;
 }
 
 export function generateDailyPlanTasks(
   mode: DayMode,
   candidateTopics: TopicCandidate[] = [],
+  candidateLessons: LessonCandidate[] = [],
 ): GeneratedPlanTask[] {
   const topic1 = candidateTopics[0];
   const topic2 = candidateTopics[1] ?? candidateTopics[0];
 
+  // Recovery prefers short lessons (<= RULES.learning.shortLessonMinutes)
+  const recoveryLesson =
+    candidateLessons.find(
+      (l) => l.estMinutes <= RULES.learning.shortLessonMinutes,
+    ) ?? candidateLessons[0];
+
   if (mode === "recovery") {
+    const firstTask: GeneratedPlanTask = recoveryLesson
+      ? {
+          type: "lesson",
+          title: `Pelajari Konsep: ${recoveryLesson.title}`,
+          reason:
+            "Tidurmu kurang atau energimu rendah, jadi cukup pelajari materi konsep ringkas tanpa tekanan waktu.",
+          estMinutes: recoveryLesson.estMinutes,
+          sortOrder: 0,
+          topicId: recoveryLesson.topicId,
+          lessonId: recoveryLesson.id,
+        }
+      : {
+          type: "review",
+          title: topic1
+            ? `Ulas Ringkas Catatan: ${topic1.name}`
+            : "Ulas Ringkas Catatan Konsep UTBK",
+          reason:
+            "Tidurmu kurang atau energimu rendah, jadi cukup ulas konsep tanpa tekanan waktu.",
+          estMinutes: 15,
+          sortOrder: 0,
+          topicId: topic1?.id,
+        };
+
     return [
-      {
-        type: "review",
-        title: topic1
-          ? `Ulas Ringkas Catatan: ${topic1.name}`
-          : "Ulas Ringkas Catatan Konsep UTBK",
-        reason: "Tidurmu kurang atau energimu rendah, jadi cukup ulas konsep tanpa tekanan waktu.",
-        estMinutes: 15,
-        sortOrder: 0,
-        topicId: topic1?.id,
-      },
+      firstTask,
       {
         type: "calm",
         title: "Latihan Pernapasan Kotak (Box Breathing 4-4-4-4)",
@@ -86,17 +117,31 @@ export function generateDailyPlanTasks(
   }
 
   // Default: balanced
+  const balancedLesson = candidateLessons[0];
+  const firstBalancedTask: GeneratedPlanTask = balancedLesson
+    ? {
+        type: "lesson",
+        title: `Materi Kunci: ${balancedLesson.title}`,
+        reason:
+          "Memperkuat konsep di topik yang paling memerlukan perhatian sebelum mulai latihan.",
+        estMinutes: balancedLesson.estMinutes,
+        sortOrder: 0,
+        topicId: balancedLesson.topicId,
+        lessonId: balancedLesson.id,
+      }
+    : {
+        type: "review",
+        title: topic1
+          ? `Ulas Materi Kunci: ${topic1.name}`
+          : "Ulas Materi Kunci UTBK",
+        reason: "Memperkuat konsep di topik yang paling memerlukan perhatian.",
+        estMinutes: 15,
+        sortOrder: 0,
+        topicId: topic1?.id,
+      };
+
   return [
-    {
-      type: "review",
-      title: topic1
-        ? `Ulas Materi Kunci: ${topic1.name}`
-        : "Ulas Materi Kunci UTBK",
-      reason: "Memperkuat konsep di topik yang paling memerlukan perhatian.",
-      estMinutes: 15,
-      sortOrder: 0,
-      topicId: topic1?.id,
-    },
+    firstBalancedTask,
     {
       type: "practice",
       title: topic2

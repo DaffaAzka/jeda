@@ -125,8 +125,39 @@ export async function submitCheckinAction(rawData: CheckinFormData) {
       candidates = fallbackTopics.map((t) => ({ id: t.id, name: t.name }));
     }
 
+    // 5b. Find published unfinished lessons in low accuracy / candidate topics
+    const candidateTopicIds = candidates.map((c) => c.id);
+    const candidateLessons = await prisma.lesson.findMany({
+      where: {
+        topicId: { in: candidateTopicIds },
+        status: "published",
+        progress: {
+          none: {
+            userId,
+            status: "completed",
+          },
+        },
+      },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        title: true,
+        topicId: true,
+        estMinutes: true,
+        topic: { select: { name: true } },
+      },
+    });
+
+    const formattedLessons = candidateLessons.map((l) => ({
+      id: l.id,
+      title: l.title,
+      topicId: l.topicId,
+      topicName: l.topic.name,
+      estMinutes: l.estMinutes,
+    }));
+
     // 6. Generate tasks for evaluated mode
-    const taskPlans = generateDailyPlanTasks(evaluation.mode, candidates);
+    const taskPlans = generateDailyPlanTasks(evaluation.mode, candidates, formattedLessons);
 
     // 7. Upsert DailyPlan and replace tasks atomically
     await prisma.$transaction(async (tx) => {
@@ -167,6 +198,7 @@ export async function submitCheckinAction(rawData: CheckinFormData) {
             estMinutes: t.estMinutes,
             sortOrder: t.sortOrder,
             topicId: t.topicId,
+            lessonId: t.lessonId,
             status: "pending",
           },
         });

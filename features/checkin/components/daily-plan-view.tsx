@@ -212,6 +212,7 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
             const isSwapping = swappingTaskId === task.id;
 
             const typeConfig = {
+              lesson: { label: "Materi Belajar", badge: "bg-moodi-sky" },
               review: { label: "Ulasan Materi", badge: "bg-moodi-sky" },
               practice: { label: "Latihan Soal", badge: "bg-moodi-butter" },
               tryout: { label: "Simulasi Tryout", badge: "bg-moodi-pink" },
@@ -220,11 +221,13 @@ export function DailyPlanView({ data, onEditCheckin }: DailyPlanViewProps) {
             }[task.type] ?? { label: "Tugas", badge: "bg-card" };
 
             const targetHref =
-              task.type === "tryout"
-                ? "/dashboard/mock-exam"
-                : task.type === "calm"
-                  ? "/dashboard/calm"
-                  : "/dashboard/study";
+              task.type === "lesson" && (task as any).lessonId
+                ? `/dashboard/study/lessons/${(task as any).lessonId}`
+                : task.type === "tryout"
+                  ? "/dashboard/mock-exam"
+                  : task.type === "calm"
+                    ? "/dashboard/calm"
+                    : "/dashboard/study";
 
             return (
               <article

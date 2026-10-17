@@ -14,17 +14,33 @@ export function StudyCatalog({
   catalog,
   activeSession,
   mode,
+  initialTopicId,
 }: {
   catalog: StudyCatalogData["catalog"];
   activeSession: StudyCatalogData["activeSession"];
   mode?: "recovery" | "balanced" | "challenge" | null;
+  initialTopicId?: string | null;
 }) {
   const [selectedTopic, setSelectedTopic] = useState<{
     id: string;
     name: string;
     subtestName: string;
     questionCount: number;
-  } | null>(null);
+  } | null>(() => {
+    if (!initialTopicId) return null;
+    for (const subtest of catalog) {
+      const found = subtest.topics.find((t) => t.id === initialTopicId);
+      if (found) {
+        return {
+          id: found.id,
+          name: found.name,
+          subtestName: subtest.name,
+          questionCount: found.questionCount,
+        };
+      }
+    }
+    return null;
+  });
 
   const [level, setLevel] = useState<TryoutMode>("relaxed");
   const [questionCount, setQuestionCount] = useState<number>(

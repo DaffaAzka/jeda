@@ -6,4 +6,5 @@ export const RULES = {
   gradedExposure: { panicOrTimeoutShare: 0.4, recentTryouts: 3 },
   insights: { minCheckins: 7 },
   autopsy: { lastWindowSeconds: 900, quickAnswerShare: 0.5 },
+  learning: { shortLessonMinutes: 10 },
 } as const;

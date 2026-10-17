@@ -4,10 +4,11 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ActiveSessionCard } from "@/features/practice/components/active-session-card";
 import { LevelPicker } from "@/features/practice/components/level-picker";
+import { StudyCatalog } from "@/features/practice/components/study-catalog";
 import { startSessionAction } from "@/features/practice/actions";
 import { siteCopy } from "@/lib/copy/id";
 import type { TryoutMode } from "@/app/generated/prisma/enums";
-import type { MockExamData } from "@/features/practice/queries";
+import type { MockExamData, StudyCatalogData } from "@/features/practice/queries";
 
 const levelLabels: Record<TryoutMode, string> = {
   relaxed: "Santai",
@@ -19,13 +20,22 @@ export function MockExamHub({
   subtests,
   recentSessions,
   activeSession,
+  catalog,
   mode,
+  initialTab = "subtest",
+  initialTopicId,
 }: {
   subtests: MockExamData["subtests"];
   recentSessions: MockExamData["recentSessions"];
   activeSession: MockExamData["activeSession"];
+  catalog?: StudyCatalogData["catalog"];
   mode?: "recovery" | "balanced" | "challenge" | null;
+  initialTab?: "subtest" | "topic";
+  initialTopicId?: string | null;
 }) {
+  const [activeTab, setActiveTab] = useState<"subtest" | "topic">(
+    initialTopicId ? "topic" : initialTab,
+  );
   const [selectedSubtestId, setSelectedSubtestId] = useState<string>(
     subtests[0]?.id ?? "",
   );
@@ -53,11 +63,46 @@ export function MockExamHub({
       {/* Active Session Alert/Card */}
       {activeSession && <ActiveSessionCard session={activeSession} />}
 
-      {/* Main Tryout Form */}
-      <section
-        aria-labelledby="mock-exam-builder-title"
-        className="space-y-6 border-2 border-border bg-card p-6 sm:p-8"
-      >
+      {/* Mode / Tab Selector */}
+      {catalog && catalog.length > 0 && (
+        <div className="flex border-b-2 border-border gap-2">
+          <button
+            className={`pixel-press border-b-2 px-5 py-2.5 text-sm font-bold transition-all ${
+              activeTab === "subtest"
+                ? "border-primary bg-card text-foreground shadow-[0_2px_0_var(--primary)]"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setActiveTab("subtest")}
+            type="button"
+          >
+            Simulasi Subtes
+          </button>
+          <button
+            className={`pixel-press border-b-2 px-5 py-2.5 text-sm font-bold transition-all ${
+              activeTab === "topic"
+                ? "border-primary bg-card text-foreground shadow-[0_2px_0_var(--primary)]"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setActiveTab("topic")}
+            type="button"
+          >
+            Latihan per Topik
+          </button>
+        </div>
+      )}
+
+      {activeTab === "topic" && catalog && catalog.length > 0 ? (
+        <StudyCatalog
+          activeSession={activeSession}
+          catalog={catalog}
+          initialTopicId={initialTopicId}
+          mode={mode}
+        />
+      ) : (
+        <section
+          aria-labelledby="mock-exam-builder-title"
+          className="space-y-6 border-2 border-border bg-card p-6 sm:p-8"
+        >
         <div className="border-b border-border pb-4">
           <h2
             className="font-pixelify text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
@@ -149,6 +194,7 @@ export function MockExamHub({
           </div>
         )}
       </section>
+      )}
 
       {/* Recent Sessions List */}
       <section
